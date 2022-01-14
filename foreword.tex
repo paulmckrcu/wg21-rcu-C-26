@@ -23,19 +23,6 @@ Reclamation'') provides an easy-to-use deferred-reclamation facility
 applying only to a single object which is intended to be based upon
 either RCU or Hazard Pointers.
 
-The Hazard Pointers library described in PNNNNR0 (``Hazard Pointers:
-Proposed Interface and Wording for C++26'') is an alternative deferred
-reclamation technique.
-As a very rough rule of thumb, Hazard Pointers can be considered to be
-a scalable replacement for reference counters and RCU can be considered
-to be a scalable replacement for reader-writer locking.
-
-Note that we are making this working paper available before N4895 has
-been published, which some might feel is unconventional.
-On the other hand, Paul was asked to begin this effort in 2014, it is now
-2022, and C++ implementations have been used in production for some time,
-perhaps most notably the Folly RCU library.
-
 \begin{table*}
 \renewcommand*{\arraystretch}{1.25}
 \footnotesize
@@ -50,27 +37,43 @@ perhaps most notably the Folly RCU library.
 	\hline
 	Readers
 		& Slow and unscalable
-			& Fast and scalable
-				& Fast and scalable \\
+			& \emph{Fast and scalable}
+				& \emph{Fast and scalable} \\
 	\hline
-	\# Protected Objects
-		& Scalable
-			& Unscalable
-				& Scalable \\
-	\hline
-	Protection Duration
-		& Can be long
-			& Can be long
-				& Must bound duration \\
+	Unreclaimed Objects
+		& \emph{Bounded}
+			& \emph{Bounded}
+				& Unbounded \\
+%	\hline
+%	Protection Duration
+%		& Can be long
+%			& Can be long
+%				& Must bound duration \\
 	\hline
 	Traversal Retries?
 		& If object deleted
 			& If object deleted
-				& Never \\
+				& \emph{Never} \\
 \end{tabular}
-\caption{Comparison of Deferred-Reclamation Techniques}
-\label{tab:Comparison of Deferred-Reclamation Techniques}
+\caption{High-Level Comparison of Deferred-Reclamation Techniques}
+\label{tab:High-Level Comparison of Deferred-Reclamation Techniques}
 \end{table*}
+
+The Hazard Pointers library described in PNNNNR0 (``Hazard Pointers:
+Proposed Interface and Wording for C++26'') is an alternative deferred
+reclamation technique.
+As a very rough rule of thumb, Hazard Pointers can be considered to be
+a scalable replacement for reference counters and RCU can be considered
+to be a scalable replacement for reader-writer locking.
+A high-level comparison of reference counting, Hazard Pointers, and RCU
+is displayed in
+Table~\ref{tab:High-Level Comparison of Deferred-Reclamation Techniques}.
+
+Note that we are making this working paper available before N4895 has
+been published, which some might feel is unconventional.
+On the other hand, Paul was asked to begin this effort in 2014, it is now
+2022, and C++ implementations have been used in production for some time,
+perhaps most notably the Folly RCU library.
 
 \section{History}
 \label{sec:History}
