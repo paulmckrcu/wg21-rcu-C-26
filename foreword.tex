@@ -1,17 +1,98 @@
 %!TEX root = ts.tex
 
-\rSec0[foreword]{Foreword}
+\chapter{Introduction}
+\label{chp:Introduction}
 
-ISO (the International Organization for Standardization) and IEC (the International Electrotechnical Commission) form the specialized system for worldwide standardization. National bodies that are members of ISO or IEC participate in the development of International Standards through technical committees established by the respective organization to deal with particular fields of technical activity. ISO and IEC technical committees collaborate in fields of mutual interest. Other international organizations, governmental and non-governmental, in liaison with ISO and IEC, also take part in the work.
+This paper proposes addition of RCU to C++26.
 
-The procedures used to develop this document and those intended for its further maintenance are described in the ISO/IEC Directives, Part 1. In particular the different approval criteria needed for the different types of document should be noted. This document was drafted in accordance with the editorial rules of the ISO/IEC Directives, Part 2 (see www.iso.org/directives).
+\section{Proposed Entry to C++26 IS}
+\label{sec:Proposed Entry to C++26 IS}
 
-Attention is drawn to the possibility that some of the elements of this document may be the subject of patent rights. ISO and IEC shall not be held responsible for identifying any or all such patent rights. Details of any patent rights identified during the development of the document will be in the Introduction and/or on the ISO list of patent declarations received (see www.iso.org/patents) or the IEC list of patent declarations received (see http://patents.iec.ch).
+A near-superset of this proposal is implemented in the Folly RCU library.
+This library has used in production for several years.
 
-Any trade name used in this document is information given for the convenience of users and does not constitute an endorsement.
+This proposal is identical to that in Concurrency TS 2.
+We expect that the proposal in Concurrency TS 2 will change over
+time, for example, adding some of the features that are present in
+the Folly RCU library.
+However, we have good implementation experience for the proposed
+variant of RCU.
 
-For an explanation on the voluntary nature of standards, the meaning of ISO specific terms and expressions related to conformity assessment, as well as information about ISO’s adherence to the World Trade Organization (WTO) principles in the Technical Barriers to Trade (TBT), see www.iso.org/iso/foreword.html.
+The snapshot library described in P0561R5 (``RAII Interface for Deferred
+Reclamation'') provides an easy-to-use deferred-reclamation facility
+applying only to a single object which is intended to be based upon
+either RCU or Hazard Pointers.
 
-This document was prepared by Joint Technical Committee ISO/IEC JTC 1, \textit{Information technology}, Subcommittee SC 22, \textit{Programming languages, their environments and system software interfaces}.
+The Hazard Pointers library described in PNNNNR0 (``Hazard Pointers:
+Proposed Interface and Wording for C++26'') is an alternative deferred
+reclamation technique.
+As a very rough rule of thumb, Hazard Pointers can be considered to be
+a scalable replacement for reference counters and RCU can be considered
+to be a scalable replacement for reader-writer locking.
 
-Any feedback or questions on this document should be directed to the user’s national standards body. A complete listing of these bodies can be found at www.iso.org/members.html.
+Note that we are making this working paper available before N4895 has
+been published, which some might feel is unconventional.
+On the other hand, Paul was asked to begin this effort in 2014, it is now
+2022, and C++ implementations have been used in production for some time,
+perhaps most notably the Folly RCU library.
+
+\begin{table*}
+\renewcommand*{\arraystretch}{1.25}
+\footnotesize
+\centering
+\begin{tabular}{l|lll}
+	Property
+		& Reference Counting
+			& Hazard Pointers
+				& RCU \\
+%		  RC	  HP	  RCU \\
+	\hline
+	\hline
+	Readers
+		& Slow and unscalable
+			& Fast and scalable
+				& Fast and scalable \\
+	\hline
+	\# Protected Objects
+		& Scalable
+			& Unscalable
+				& Scalable \\
+	\hline
+	Protection Duration
+		& Can be long
+			& Can be long
+				& Must bound duration \\
+	\hline
+	Traversal Retries?
+		& If object deleted
+			& If object deleted
+				& Never \\
+\end{tabular}
+\caption{Comparison of Deferred-Reclamation Techniques}
+\label{tab:Comparison of Deferred-Reclamation Techniques}
+\end{table*}
+
+\section{History}
+\label{sec:History}
+
+This paper is derived from N4895, which was in turn based on P1122R4.
+
+P1122R4 is a successor to the RCU portion of P0566R5, in response to
+LEWG’s Rapperswil 2018 request that the two techniques be split into
+separate papers.
+
+This is proposed wording for Read-Copy-Update [P0461], which is
+a technique for safe deferred resource reclamation for optimistic
+concurrency, useful for lock-free data structures.
+Both RCU and hazard pointers have been progressing steadily through SG1
+based on years of implementation by the authors, and are in wide use in
+MongoDB (for Hazard Pointers), Facebook, and Linux OS (RCU).
+
+We originally decided to do both papers' wording together to illustrate
+their close relationship, and similar design structure, while hopefully
+making it easier for the reader to review together for this first
+presentation.
+As noted above, they have been split on request.
+
+This wording is based P0566r5, which in turn was based on that of on
+n4618 draft [N4618].
