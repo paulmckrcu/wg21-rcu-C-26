@@ -1,0 +1,135 @@
+%!TEX root = ts.tex
+
+\rSec0[scope]{Scope}
+
+\pnum
+This document describes requirements for implementations of an interface that computer programs written in the C++ programming language may use to invoke algorithms with concurrent execution. The algorithms described by this document are realizable across a broad class of computer architectures.
+
+\pnum
+{\cppstddocno} provide important context and specification for
+this document. This document is written as a set of changes against that specification.  Instructions to modify or add paragraphs are written as
+explicit instructions.  Modifications made directly to existing text from {\cppstddocno} use \added{underlining} to represent added text and \removed{strikethrough} to represent deleted text.
+
+\pnum
+This document is non-normative. Some of the functionality described by this document may be considered for standardization in a future version of C++, but it is not currently part of any C++ standard. Some of the functionality in this document may never be standardized, and other functionality may be standardized in a substantially changed form.
+
+\pnum
+The goal of this document is to build widespread existing practice for concurrency in the C++ standard algorithms library. It gives advice on extensions to those vendors who wish to provide them.
+
+\rSec0[refs]{Normative references}
+
+\pnum
+The following referenced document is indispensable for the application of this document. For dated references, only the edition cited applies. For undated references, the latest edition of the referenced document (including any amendments) applies.
+
+\begin{itemize}
+\item {\cppstddocno}, \doccite{Programming Languages --- C++}
+\end{itemize}
+
+\pnum
+ISO/IEC 14882:2020 is herein called the C++ Standard. References to clauses within the C++ Standard are written as ``\CppXref{3.2}''. The library described in \CppXref{16-32} is herein called the C++ Standard Library.
+
+\pnum
+Unless otherwise specified, the whole of the C++ Standard's Library introduction (\CppXref{16}) is included into this Technical Specification by reference.
+
+
+\rSec0[defs]{Terms and definitions}
+\pnum
+\indextext{definitions|(}%
+No terms and definitions are listed in this document. ISO and IEC maintain
+terminological databases for use in standardization at the following addresses:
+
+\begin{itemize}
+    \item IEC Electropedia: available at https://www.electropedia.org/
+    \item ISO Online browsing platform: available at https://www.iso.org/obp
+\end{itemize}
+
+\rSec0[general]{General}
+
+\rSec1[general.compliance]{Implementation compliance}
+\pnum
+Conformance requirements for this document are those defined in \CppXref{4.1}, as applied to a merged document consisting of C++20 amended by this document.
+\begin{note}
+Conformance is defined in terms of the behavior of programs.
+\end{note}
+
+\rSec1[general.namespaces]{Namespaces and headers and modifications to standard classes}
+\pnum
+Since the extensions described in this technical specification are experimental and not part of the C++ standard library, they are not declared directly within namespace \tcode{std}. Unless otherwise specified, all components described in this technical specification either:
+
+\begin{itemize}
+    \item modify an existing interface in the C++ Standard Library in-place,
+    \item are declared in a namespace whose name appends \tcode{::experimental::concurrency\_v2} to a namespace defined in the C++ Standard Library, such as \tcode{std}, or
+    \item are declared in a subnamespace of a namespace described in the previous bullet, whose name is not the same as an existing subnamespace of namespace \tcode{std}.
+\end{itemize}
+
+\pnum
+Whenever an unqualified name is used
+in the specification of a declaration \tcode{D},
+its meaning is established
+as-if by performing unqualified name lookup
+in the context of \tcode{D}.
+\begin{note}
+Argument-dependent lookup is not performed.
+\end{note}
+Similarly, the meaning of a \grammarterm{qualified-id} is established
+as-if by performing qualified name lookup
+in the context of \tcode{D}.
+\begin{note}
+Operators in expressions are not so constrained.
+\end{note}
+
+%%The header described in this document (see Table~\ref{tab:info.headers})
+%%shall import the contents of \tcode{::std::experimental::concurrency::v2} into
+%%\tcode{::std::experimental::concurrency_v1} as if by:
+
+%%\begin{codeblock}
+%%namespace std::experimental::concurrency_v1 {
+%%  inline namespace v2 {}
+%%}
+%%\end{codeblock}
+
+
+%%\begin{floattable}{Concurrency\_v2 library headers}{tab:info.headers}
+%%{l}
+%%\topline
+%%\tcode{<experimental/concurrency\_v2>} \\
+%%\end{floattable}
+
+\rSec1[general.feature.test]{Feature-testing recommendations (Informative)}
+\pnum
+An implementation that provides support for this document should define each feature test macro defined in \tref{intro.features} if no associated headers are indicated for that macro, and if associated headers are indicated for a macro, that macro is defined after inclusion of one of the corresponding headers specified in the table.
+
+\begin{floattable}{Feature-test macros}{tab:intro.features}
+{lll}
+\topline
+\lhdr{Macro name} & \chdr{Value} & \rhdr{Header} \\
+\capsep
+%%\tcode{__cpp_concurrency\_v2}  & \tcode{\tsver}   &  none \\
+\tcode{__cpp_lib_concurrency\_v2}  & \tcode{\tsver}  & \tcode{<experimental/concurrency\_v2>} \\
+\end{floattable}
+\rSec1[general.plans]{Future plans (Informative)}
+\pnum
+This section describes tentative plans for future versions of this technical specification and plans for moving content into
+future versions of the C++ Standard.
+
+\pnum
+ The C++ committee intends to release a new version of this technical specification approximately every few years, containing
+the concurrency extensions we hope to add to a near-future version of the C++ Standard. Future versions will define their
+contents in \tcode{std::experimental::concurrency\_v3}, \tcode{std::experimental::concurrency\_v4}, etc., with the most recent
+implemented version inlined into \tcode{std::ex\-perimental}.
+
+\pnum
+When an extension defined in this or a future version of this technical specification represents enough existing practice, it
+will be moved into the next version of the C++ Standard by removing the \tcode{experimental::con\-currency\_v$N$} segment of its
+namespace and by removing the \tcode{experimental/} prefix from its header's path.
+
+\rSec1[general.ack]{Acknowledgments}
+
+This work is the result of a collaboration of researchers in industry and academia. We wish to thank the
+original authors of this document, Michael Wong, Paul McKenney, and Maged Michael. We also wish to thank people
+who made valuable contributions within and outside these groups, including Jens Maurer, and many others not named
+here who contributed to the discussion.
+
+
+
+

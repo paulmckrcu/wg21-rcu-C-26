@@ -1,0 +1,12 @@
+*.aux
+*.idx
+*.ilg
+*.ind
+*.log
+*.lot
+*.lof
+*.tmp
+*.out
+*.toc
+rcu.out
+rcu.pdf

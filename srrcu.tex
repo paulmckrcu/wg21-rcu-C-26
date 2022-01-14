@@ -1,0 +1,354 @@
+%!TEX root = ts.tex
+
+\rSec1[saferecl.rcu]{Read-copy update (RCU)}
+
+\rSec2[saferecl.rcu.general]{General}
+
+\pnum
+RCU is a synchronization mechanism that can be used for linked data
+structures that are frequently read, but seldom updated. RCU does
+not provide mutual exclusion, but instead allows the user to schedule
+specified actions such as deletion at some later time.
+
+\pnum
+A class type \tcode{T} is \defn{rcu-protectable} if it has exactly one
+public base class of type \tcode{rcu_obj_base<T,D>} for some \tcode{D}
+and no base classes of type \tcode{rcu_obj_base<X,Y>} for any other
+combination \tcode{X}, \tcode{Y}. An object is rcu-protectable if it is
+of rcu-protectable type.
+
+\pnum
+An invocation of \tcode{unlock} $U$ on an \tcode{rcu_domain dom} corresponds
+to an invocation of \tcode{lock} $L$ on \tcode{dom} if $L$ is
+sequenced before $U$ and either
+
+\begin{itemize}
+\item	no other invocation of \tcode{lock} on \tcode{dom} is sequenced
+	after $L$ and before $U$ or
+\item	every invocation of \tcode{unlock} $U'$ on \tcode{dom} such
+	that $L$ is sequenced before $U'$ and $U'$
+	is sequenced before $U$ corresponds to an invocation of
+	\tcode{lock} $L'$ on \tcode{dom} such that $L$ is sequenced
+	before $L'$ and $L'$ is sequenced before $U'$.
+\end{itemize}
+\begin{note}
+This pairs nested locks and unlocks on a given domain in each thread.
+\end{note}
+
+\pnum
+A \defn{region of RCU protection} on a domain \tcode{dom} starts
+with a \tcode{lock} $L$ on \tcode{dom} and ends with its corresponding
+\tcode{unlock} $U$.
+
+\pnum
+Given a region of RCU protection $R$ on a domain \tcode{dom}
+and given an evaluation $E$ that scheduled another evaluation
+$F$ in \tcode{dom}, if $E$ does not strongly happen before
+the start of $R$, the end of $R$ strongly happens before
+evaluating $F$.
+
+\pnum
+The evaluation of a scheduled evaluation is potentially concurrent with
+any other such evaluation. Each scheduled evaluation is evaluated at
+most once.
+
+\rSec2[saferecl.rcu.syn]{Header \tcode{<rcu>} synopsis}
+
+% \indexheader{rcu}
+\begin{codeblock}
+namespace std::experimental::inline concurrency_v2 {
+  // \ref{saferecl.rcu.base}, class template \tcode{rcu_obj_base}
+  template<class T, class D = default_delete<T>>
+    class rcu_obj_base;
+
+  // \ref{saferecl.rcu.domain}, class \tcode{rcu_domain}
+  class rcu_domain;
+
+  // \ref{saferecl.rcu.default.domain}, \tcode{rcu_default_domain}
+  rcu_domain& rcu_default_domain() noexcept;
+
+  // \ref{saferecl.rcu.synchronize}, \tcode{rcu_synchronize}
+  void rcu_synchronize(rcu_domain& dom = rcu_default_domain()) noexcept;
+
+  // \ref{saferecl.rcu.barrier}, \tcode{rcu_barrier}
+  void rcu_barrier(rcu_domain& dom = rcu_default_domain()) noexcept;
+
+  // \ref{saferecl.rcu.retire}, \tcode{rcu_retire}
+  template<class T, class D = default_delete<T>>
+    void rcu_retire(T* p, D d = D(), rcu_domain& dom = rcu_default_domain());
+}
+\end{codeblock}
+
+\rSec2[saferecl.rcu.base]{Class \tcode{rcu_obj_base}}
+
+% @@@ Added missing "of" in following sentence.
+
+Objects of type \tcode{T} to be protected by RCU inherit from a
+specialization of \tcode{rcu_obj_base<T,D>}.
+
+% @@@ Removed obsolete in-code reference to the now-nonexistent
+% @@@ separate section for rcu_obj_base::retire.
+
+\begin{codeblock}
+template<class T, class D = default_delete<T>>
+class rcu_obj_base {
+public:
+  void retire(D d = D(), rcu_domain& dom = rcu_default_domain()) noexcept;
+protected:
+  rcu_obj_base() = default;
+private:
+  D @\exposid{deleter}@;            // exposition only
+};
+\end{codeblock}
+
+\pnum
+A client-supplied template argument \tcode{D} shall be a
+function object type \CppXref{20.14} for which,
+given a value \tcode{d} of type \tcode{D} and a value \tcode{ptr}
+of type \tcode{T*}, the expression \tcode{d(ptr)} is valid and
+has the effect of disposing of the pointer as appropriate for
+that deleter.
+
+\pnum
+The behavior of a program that adds specializations for
+\tcode{rcu_obj_base} is undefined.
+
+\pnum
+\tcode{D} shall meet the requirements for
+\oldconcept{DefaultConstructible} and \oldconcept{MoveAssignable}.
+
+\pnum
+\tcode{T} may be an incomplete type.
+
+\pnum
+If \tcode{D} is trivially copyable, all specializations of
+\tcode{rcu_obj_base<T,D>} are trivially copyable.
+
+\begin{itemdecl}
+void retire(D d = D(), rcu_domain& dom = rcu_default_domain()) noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\mandates
+\tcode{T} is an rcu-protectable type.
+
+\pnum
+\expects
+\tcode{*this} is a base class subobject of
+an object \tcode{x} of type \tcode{T}. The member function
+\tcode{rcu_obj_base<T,D>::retire} was not invoked on \tcode{x}
+before. The assignment to \exposid{deleter} does not throw an
+exception. The expression \tcode{\exposid{deleter}(addressof(x))} has
+well-defined behavior and does not throw an exception.
+
+\pnum
+\effects
+Evaluates \tcode{\exposid{deleter} = std::move(d)} and schedules
+the evaluation of the expression \tcode{de\-let\-er(ad\-dress\-of(x))} in the domain \tcode{dom}.
+
+\pnum
+\remarks
+It is implementation-defined whether or not scheduled
+evaluations in \tcode{dom} can be invoked by the \tcode{retire}
+function.
+\begin{note}
+If such evaluations acquire resources held across any invocation of
+retire on \tcode{dom}, deadlock can occur.
+\end{note}
+
+\end{itemdescr}
+
+\rSec2[saferecl.rcu.domain]{Class \tcode{rcu_domain}}
+
+% @@@ Removed the obsolete reference comments.
+
+This class meets the requirements of \oldconcept{BasicLockable} \CppXref{32.2.5.2} and provides regions of RCU protection.
+
+\begin{example}
+\begin{codeblock}
+std::scoped_lock<rcu_domain> rlock(rcu_default_domain());
+\end{codeblock}
+\end{example}
+
+\begin{codeblock}
+class rcu_domain {
+public:
+  rcu_domain(const rcu_domain&) = delete;
+  rcu_domain& operator=(const rcu_domain&) = delete;
+
+  void lock() noexcept;
+  void unlock() noexcept;
+};
+\end{codeblock}
+
+The functions \tcode{lock} and \tcode{unlock} establish (possibly nested)
+regions of RCU protection.
+
+\rSec3[saferecl.rcu.domain.lock]{\tcode{rcu_domain::lock}}
+
+\begin{itemdecl}
+void lock() noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\effects
+Opens a region of RCU protection.
+
+\pnum
+\remarks
+Calls to the function lock do not introduce a data race
+(\CppXref{6.9.2.1}) involving \tcode{*this}.
+
+\end{itemdescr}
+
+\rSec3[saferecl.rcu.domain.unlock]{\tcode{rcu_domain::unlock}}
+
+\begin{itemdecl}
+void unlock() noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\expects
+A call to the function \tcode{lock} that opened
+an unclosed region of RCU protection is sequenced before the
+call to \tcode{unlock}.
+
+\pnum
+\effects
+Closes the unclosed region of RCU protection that was
+most recently opened.
+
+\pnum
+\remarks
+It is implementation-defined whether or not scheduled
+evaluations in \tcode{*this} can be invoked by the \tcode{unlock}
+function.
+\begin{note}
+If such evaluations acquire resources held across any invocation
+of \tcode{unlock} on \tcode{*this}, deadlock can occur.
+\end{note}
+Calls to the function \tcode{unlock} do not introduce a data race
+involving \tcode{*this}.
+\begin{note}
+Evaluation of scheduled evaluations can still cause a data race.
+\end{note}
+
+\end{itemdescr}
+
+\rSec2[saferecl.rcu.default.domain]{\tcode{rcu_default_domain}}
+
+\begin{itemdecl}
+rcu_domain& rcu_default_domain() noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\returns
+A reference to the default object of type \tcode{rcu_domain}.
+A reference to the same object is returned every time this
+function is called.
+
+\end{itemdescr}
+
+\rSec2[saferecl.rcu.synchronize]{\tcode{rcu_synchronize}}
+
+\begin{itemdecl}
+void rcu_synchronize(rcu_domain& dom = rcu_default_domain()) noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\effects
+If the call to \tcode{rcu_synchronize} does not strongly
+happen before the lock opening an RCU protection region \tcode{R}
+on \tcode{dom}, blocks until the \tcode{unlock} closing \tcode{R}
+happens.
+
+\pnum
+\sync
+The \tcode{unlock} closing \tcode{R} strongly
+happens before the return from \tcode{rcu_synchronize}.
+
+\end{itemdescr}
+
+\rSec2[saferecl.rcu.barrier]{\tcode{rcu_barrier}}
+
+\begin{itemdecl}
+void rcu_barrier(rcu_domain& dom = rcu_default_domain()) noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\effects
+May evaluate any scheduled evaluations in
+\tcode{dom}. For any evaluation that happens before the call
+to \tcode{rcu_barrier} and that schedules an evaluation $E$
+in \tcode{dom}, blocks until $E$ has been evaluated.
+
+\pnum
+\sync
+The evaluation of any such $E$ strongly
+happens before the return from \tcode{rcu_barrier}.
+
+\end{itemdescr}
+
+\rSec2[saferecl.rcu.retire]{Template \tcode{rcu_retire}}
+
+\begin{itemdecl}
+template<class T, class D = default_delete<T>>
+void rcu_retire(T* p, D d = D(), rcu_domain& dom = rcu_default_domain());
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\mandates
+\tcode{is_move_constructible_v<D>} is true.
+
+\pnum
+\expects
+\tcode{D} meets the \oldconcept{MoveConstructible} and
+\oldconcept{Destructible} requirements.
+The expression \tcode{d1(p)}, where \tcode{d1} is defined below, is
+well-formed and its evaluation does not exit via an exception.
+
+\pnum
+\effects
+May allocate memory.
+It is unspecified whether the memory allocation is performed by
+invoking \tcode{operator} \tcode{new}.
+Initializes an object \tcode{d1} of type \tcode{D} from
+\tcode{std::move(d)}.
+Schedules the evaluation of \tcode{d1(p)} in the domain
+\tcode{dom}.
+\begin{note}
+If \tcode{rcu_retire} exits via an exception, no evaluation
+is scheduled.
+\end{note}
+
+\pnum
+\throws
+Any exception that would be caught by a handler of type
+\tcode{bad_alloc}.
+Any exception thrown by the initialization of \tcode{d1}.
+
+\pnum
+\remarks
+It is implementation-defined whether or not scheduled
+evaluations in dom can be invoked by the \tcode{rcu_retire}
+function.
+\begin{note}
+If such evaluations acquire resources held across any invocation
+of \tcode{rcu_retire} on \tcode{dom}, deadlock can occur.
+\end{note}
+
+\end{itemdescr}
