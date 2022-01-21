@@ -10,3 +10,5 @@
 *.toc
 rcu.out
 *.pdf
+*.swp
+*.swo
