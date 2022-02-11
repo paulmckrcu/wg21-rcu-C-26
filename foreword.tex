@@ -145,6 +145,30 @@ As noted above, they have been split on request.
 This wording is based P0566r5, which in turn was based on that of on
 n4618 draft [N4618].
 
+\section{Source-Code Access}
+\label{sec:Source-Code Access}
+
+The Folly library is open source, and its RCU implementation may be
+accessed here:
+
+\begin{itemize}
+\item	https://github.com/facebook/folly/blob/main/folly/synchronization/Rcu.h
+\item	https://github.com/facebook/folly/blob/main/folly/synchronization/Rcu-inl.h
+\item	https://github.com/facebook/folly/blob/main/folly/synchronization/Rcu.cpp
+\end{itemize}
+
+There is an additional reference implementation of this proposal.
+Unlike the Folly library's version, this reference implementation is
+not production quality.
+However, it is quite a bit simpler, having delegated the difficult parts
+to the C-language userspace RCU library:
+
+\begin{itemize}
+\item	https://github.com/paulmckrcu/RCUCPPbindings/tree/master/Test/paulmck
+\item	https://liburcu.org
+\end{itemize}
+
+
 \section{Acknowledgments}
 \label{sec:Acknowledgments}
 
