@@ -119,6 +119,144 @@ On the other hand, Paul was asked to begin this effort in 2014, it is now
 2022, and C++ implementations have been used in production for some time,
 perhaps most notably the Folly RCU library.
 
+\section{Tony Tables}
+\label{sec:Tony Tables}
+
+Although RCU can be applied to a great many use cases, its most common
+use case is as a replacement for reader-writer locking.
+The reader-writer usage patterns most susceptible to conversion to RCU
+are those where a value is computed while read-holding that lock, then
+used after releasing that same lock.
+
+\begin{table*}
+\renewcommand*{\arraystretch}{1.25}
+\footnotesize
+\centering
+\begin{tabular}{|l|l|}
+	\hline
+	With Reader-Writer Locking
+		& With RCU in the intrusive style\\
+%	rwlock  & RCU \\
+	\hline
+	\tcode{struct Data { /* members */ };}
+		& \tcode{struct Data : std::rcu_obj_base<Data> { /* members */ };} \\
+	\hline
+	\tcode{Data* data_;}
+		& \tcode{std::atomic<Data*> data_;} \\
+	\tcode{std::shared_mutex m_;}
+		& \\
+	\hline
+	\tcode{template <typename Func>}
+		& \tcode{template <typename Func>} \\
+	\tcode{Result reader_op(Func fn) \{}
+		& \tcode{Result reader_op(Func fn) \{} \\
+	\tcode{  std::shared_lock<std::shared_mutex> l(m_);}
+		& \tcode{  std::scoped_lock l(std::rcu_default_domain());} \\
+	\tcode{  Data* p = data_;}
+		& \tcode{  Data* p = data_;} \\
+	\tcode{  // fn should not block too long or call update()}
+		& \tcode{  // fn should not block too long or call} \\
+		& \tcode{  // rcu_synchronize(), rcu_barrier(), or} \\
+		& \tcode{  // rcu_retire(), directly or indirectly} \\
+	\tcode{  return fn(p);}
+		& \tcode{  return fn(p);} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+	\tcode{// May be called concurrently with reader_op}
+		& \tcode{// May be called concurrently with reader_op} \\
+	\tcode{void update(Data* newdata) \{}
+		& \tcode{void update(Data* newdata) \{} \\
+	\tcode{  Data* olddata;}
+		& \tcode{  Data* olddata = data_.exchange(newdata);} \\
+	\tcode{  \{}
+		& \\
+	~~\tcode{    std::unique_lock<std::shared_mutex> wlock(m_);}
+		& \\
+	~~\tcode{    olddata = std::exchange(data_, newdata);}
+		& \\
+	\tcode{  \}}
+		& \\
+	\tcode{  delete olddata; // reclaim *olddata immediately}
+		& \tcode{  olddata->retire(); // reclaim *olddata when safe} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+\end{tabular}
+\caption{Tony Table for Reader-Writer Locking and Intrusive RCU}
+\label{tab:Tony Table for Reader-Writer Locking and Intrusive RCU}
+\end{table*}
+
+Table~\ref{tab:Tony Table for Reader-Writer Locking and Intrusive RCU}
+compares reader-writer locking and intrusive RCU, that is, when the
+RCU-protected data items inherit from \tcode{std::rcu_obj_base<T>} and
+use the \tcode{->retire()} member function.
+
+\begin{table*}
+\renewcommand*{\arraystretch}{1.25}
+\footnotesize
+\centering
+\begin{tabular}{|l|l|}
+	\hline
+	With Reader-Writer Locking
+		& With RCU in the synchronous style\\
+%	rwlock  & RCU \\
+	\hline
+	\tcode{struct Data { /* members */ };}
+		& \tcode{struct Data { /* members */ };} \\
+	\hline
+	\tcode{Data* data_;}
+		& \tcode{std::atomic<Data*> data_;} \\
+	\tcode{std::shared_mutex m_;}
+		& \\
+	\hline
+	\tcode{template <typename Func>}
+		& \tcode{template <typename Func>} \\
+	\tcode{Result reader_op(Func fn) \{}
+		& \tcode{Result reader_op(Func fn) \{} \\
+	\tcode{  std::shared_lock<std::shared_mutex> l(m_);}
+		& \tcode{  std::scoped_lock l(std::rcu_default_domain());} \\
+	\tcode{  Data* p = data_;}
+		& \tcode{  Data* p = data_;} \\
+	\tcode{  // fn should not block too long or call update()}
+		& \tcode{  // fn should not block too long or call} \\
+		& \tcode{  // rcu_synchronize(), rcu_barrier(), or} \\
+		& \tcode{  // rcu_retire(), directly or indirectly} \\
+	\tcode{  return fn(p);}
+		& \tcode{  return fn(p);} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+	\tcode{// May be called concurrently with reader_op}
+		& \tcode{// May be called concurrently with reader_op} \\
+	\tcode{void update(Data* newdata) \{}
+		& \tcode{void update(Data* newdata) \{} \\
+	\tcode{  Data* olddata;}
+		& \tcode{  Data* olddata = data_.exchange(newdata);} \\
+	\tcode{  \{}
+		& \\
+	~~\tcode{    std::unique_lock<std::shared_mutex> wlock(m_);}
+		& \\
+	~~\tcode{    olddata = std::exchange(data_, newdata);}
+		& \\
+	\tcode{  \}}
+		& \tcode{  std::rcu_synchronize(); // wait until it’s safe} \\
+	\tcode{  delete olddata; // reclaim *olddata immediately}
+		& \tcode{  delete olddata; // then reclaim *olddata} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+\end{tabular}
+\caption{Tony Table for Reader-Writer Locking and Synchronous RCU}
+\label{tab:Tony Table for Reader-Writer Locking and Synchronous RCU}
+\end{table*}
+
+Table~\ref{tab:Tony Table for Reader-Writer Locking and Synchronous RCU}
+compares reader-writer locking and synchronous RCU, that is, when the
+RCU updater does an explicit wait for readers.
+When using this style, RCU-protected data items need not inherit from
+\tcode{std::rcu_obj_base<T>}.
+
 \section{History}
 \label{sec:History}
 
