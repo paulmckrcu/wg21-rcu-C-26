@@ -199,6 +199,70 @@ use the \tcode{->retire()} member function.
 \begin{tabular}{|l|l|}
 	\hline
 	With Reader-Writer Locking
+		& With RCU in the non-intrusive style\\
+%	rwlock  & RCU \\
+	\hline
+	\tcode{struct Data { /* members */ };}
+		& \tcode{struct Data { /* members */ };} \\
+	\hline
+	\tcode{Data* data_;}
+		& \tcode{std::atomic<Data*> data_;} \\
+	\tcode{std::shared_mutex m_;}
+		& \\
+	\hline
+	\tcode{template <typename Func>}
+		& \tcode{template <typename Func>} \\
+	\tcode{Result reader_op(Func fn) \{}
+		& \tcode{Result reader_op(Func fn) \{} \\
+	\tcode{  std::shared_lock<std::shared_mutex> l(m_);}
+		& \tcode{  std::scoped_lock l(std::rcu_default_domain());} \\
+	\tcode{  Data* p = data_;}
+		& \tcode{  Data* p = data_;} \\
+	\tcode{  // fn should not block too long or call update()}
+		& \tcode{  // fn should not block too long or call} \\
+		& \tcode{  // rcu_synchronize(), rcu_barrier(), or} \\
+		& \tcode{  // rcu_retire(), directly or indirectly} \\
+	\tcode{  return fn(p);}
+		& \tcode{  return fn(p);} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+	\tcode{// May be called concurrently with reader_op}
+		& \tcode{// May be called concurrently with reader_op} \\
+	\tcode{void update(Data* newdata) \{}
+		& \tcode{void update(Data* newdata) \{} \\
+	\tcode{  Data* olddata;}
+		& \tcode{  Data* olddata = data_.exchange(newdata);} \\
+	\tcode{  \{}
+		& \\
+	~~\tcode{    std::unique_lock<std::shared_mutex> wlock(m_);}
+		& \\
+	~~\tcode{    olddata = std::exchange(data_, newdata);}
+		& \\
+	\tcode{  \}}
+		& \\
+	\tcode{  delete olddata; // reclaim *olddata immediately}
+		& \tcode{  rcu_retire(olddata); // reclaim *olddata when safe} \\
+	\tcode{\}}
+		& \tcode{\}} \\
+	\hline
+\end{tabular}
+\caption{Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
+\label{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
+\end{table*}
+
+Table~\ref{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
+compares reader-writer locking and non-intrusive RCU, that is, when the
+RCU-protected data items do \emph{not} inherit from
+\tcode{std::rcu_obj_base<T>} and use the \tcode{rcu_retire()} free function.
+
+\begin{table*}
+\renewcommand*{\arraystretch}{1.25}
+\footnotesize
+\centering
+\begin{tabular}{|l|l|}
+	\hline
+	With Reader-Writer Locking
 		& With RCU in the synchronous style\\
 %	rwlock  & RCU \\
 	\hline
