@@ -242,7 +242,7 @@ use the \tcode{->retire()} member function.
 	\tcode{  \}}
 		& \\
 	\tcode{  delete olddata; // reclaim *olddata immediately}
-		& \tcode{  rcu_retire(olddata); // reclaim *olddata when safe} \\
+		& \tcode{  std::rcu_retire(olddata); // reclaim *olddata when safe} \\
 	\tcode{\}}
 		& \tcode{\}} \\
 	\hline
@@ -254,7 +254,7 @@ use the \tcode{->retire()} member function.
 Table~\ref{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
 compares reader-writer locking and non-intrusive RCU, that is, when the
 RCU-protected data items do \emph{not} inherit from
-\tcode{std::rcu_obj_base<T>} and use the \tcode{rcu_retire()} free function.
+\tcode{std::rcu_obj_base<T>} and use the \tcode{std::rcu_retire()} free function.
 
 \begin{table*}
 \renewcommand*{\arraystretch}{1.25}
