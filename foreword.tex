@@ -7,6 +7,15 @@ We propose RCU for inclusion into C++26.
 This paper contains proposed rationale to support RCU into C++26 as
 well as the interface and wording for RCU, a technique for safe deferred
 reclamation.
+We further propose that the wording in Section~\ref{saferecl.rcu}
+be adopted as a new ``Safe reclamation'' chapter of the IS, and we
+anticipate that hazard pointers would be covered by another section of
+this same chapter.
+
+The purpose of adding RCU to the IS is to provide a small number of
+known-good implementations of RCU in standard libraries.
+RCU is easy to get wrong, and one purpose standard libraries is to
+provide good implementations of things that are easy to get wrong.
 
 \section{Proposed Entry to C++26 IS}
 \label{sec:Proposed Entry to C++26 IS}
@@ -44,6 +53,8 @@ Such features might include:
 	However, RCU was in the Linux kernel for more than a decade
 	before such APIs were needed, so they are not yet in the
 	TS nor are they in the proposal for C++26.
+\item	Async-friendly APIs for RCU's blocking APIs.
+	These might leverage the aforementioned polling APIs.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
@@ -118,6 +129,12 @@ TS2 been published, which some might feel is unconventional.
 On the other hand, Paul was asked to begin this effort in 2014, it is now
 2022, and C++ implementations have been used in production for some time,
 perhaps most notably the Folly RCU library.
+
+\section{Feature-Test Macro}
+\label{sec:Feature-Test Macro}
+
+We propose a new feature-test macro
+\tcode{__cpp_lib_rcu} be added to Section~17.3.2 of the IS.
 
 \section{Tony Tables}
 \label{sec:Tony Tables}
@@ -349,6 +366,15 @@ n4618 draft [N4618].
 \section{Source-Code Access}
 \label{sec:Source-Code Access}
 
+This section presents C++ reference implementations, other
+C++ implementations, and additional implementations and use cases.
+
+Counting the two reference implementation, this section points out
+ten implementations of RCU-like mechanisms in C++.
+
+\subsection{Reference C++ Implementations}
+\label{sec:Reference C++ Implementations}
+
 The Folly library is open source, and its RCU implementation may be
 accessed here:
 
@@ -369,6 +395,90 @@ to the C-language userspace RCU library:
 \item	https://liburcu.org
 \end{itemize}
 
+\subsection{Other C++ Implementations}
+\label{sec:Other C++ Implementations}
+
+Maxim Khizhinsky added a C++ implementation of RCU to his libcds
+around 2017.
+URL: \url{https://github.com/khizmax/libcds/tree/master/cds/urcu}
+
+Avi Kivity added a C++ implementation of RCU to the OSv kernel in
+2010.
+URL: \url{https://github.com/cloudius-systems/osv/blob/master/include/osv/rcu.hh}
+
+Isaac Gelado and Michael Garland describe use of a CUDA/C++ RCU in GPU
+programming in their 2019 PPoPP paper entitled ``Throughput-Oriented
+GPU Memory Allocation''.
+URL: \url{https://dl.acm.org/doi/10.1145/3293883.3295727}
+% Per email from Isaac Gelado on September 21, 2022.
+
+M\'arton et al.~present a sample C++ implementation in their paper
+entitled ``High-level C++ Implementation of the Read-Copy-Update
+Pattern'', which appeared in the 2017 IEEE 14\textsuperscript{th}
+International Scientific Conference on Informatics.
+URL: \url{https://martong.github.io/high-level-cpp-rcu_informatics_2017.pdf}
+The corresponding journal paper appeared in the September 2018 Acta
+Electrotechnica et Informatica.
+
+In 2016, Pedro Ramalhete and Andreia Correia produced a C++ prototype
+implmentation of RCU in the ConcurrencyFreaks GitHub repository.
+URL: \url{https://github.com/pramalhe/ConcurrencyFreaks/tree/master/CPP/papers/gracesharingurcu}
+This appeared in the August 2017 issue of ACM SIGPLAN Notices.
+URL: \url{https://dl.acm.org/doi/abs/10.1145/3155284.3019021}
+
+Peter Goodman produced a prototype C++ implementation of RCU in his
+GitHub repository in 2012.
+URL: \url{https://github.com/pgoodman/rcu}
+
+StackExchange user Jamal posted a C++ RCU-like linked-list algorithm
+in 2017.
+URL: \url{https://codereview.stackexchange.com/questions/151936/rcu-in-c11-using-stdshared-ptr-and-a-little-more}.
+
+Gamsa et al.~describe an RCU-like implementation within the Tornado
+and K42 research operating systems, both of which were coded in C++.
+Sections~5.2 and~5.3 of their 1999 OSDI paper entitled ``Tornado: Maximizing
+Locality and Concurrency in a Shared Memory Multiprocessor Operating
+System'' gives an overview of their mechanism for providing what they call
+``existence guarantees''.
+URL: \url{https://www.usenix.org/legacy/events/osdi99/full_papers/gamsa/gamsa.pdf}
+
+There are implementations of RCU-like mechanisms in proprietary
+applications, but these cannot be divulged to the committee without the
+permission of their respective copyright holders.
+However, in the words of Fedor Pikus:
+
+\begin{quote}
+	In fact, you may already be using the RCU approach in your program
+	without realizing it! Wouldn't that be cool? But careful now:
+	you may be already using the RCU approach in your program in a
+	subtly wrong way. I'm talking about the kind of way that makes
+	your program pass every test you can throw at it and then crash
+	in front of your most important customer (but only when they
+	run their most critical job, not when you try to reproduce
+	the problem).
+\end{quote}
+
+URL: {\scriptsize \url{https://cppcon2017.sched.com/event/BgtF/read-copy-update-then-what-rcu-for-non-kernel-programmers}}
+
+With these words, Fedor has pinpointed a major motivation for adding
+RCU to the C++ standard: To provide a smaller number of known-good RCU
+implementations to C++ users.
+
+\subsection{Other Use Cases}
+\label{sec:Other Use Cases}
+
+The C-language userspace RCU library appeared around 2009.
+The QEMU project created its own version of this library in 2015.
+URL: \url{https://liburcu.org}
+
+Google uses an RCU implementation internally that inspired Andrew
+Hunter's and Geoffrey Romer's P0561 C++ working paper.
+URL: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0561r4.html}
+
+A list of additional RCU implementations in a variety of languages
+may be found in Sections~9.5.5, 9.5.5.2, and~9.6.3.3 of
+``Is Parallel Programming Hard, And, If So, What Can You Do About It?''.
+URL: \url{https://kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.pdf}
 
 \section{Acknowledgments}
 \label{sec:Acknowledgments}
