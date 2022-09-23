@@ -55,6 +55,10 @@ Such features might include:
 	TS nor are they in the proposal for C++26.
 \item	Async-friendly APIs for RCU's blocking APIs.
 	These might leverage the aforementioned polling APIs.
+\item	A free function similar to \tcode{rcu_retire} that uses
+	an \tcode{rcu_obj_base} if available, but which invokes
+	\tcode{rcu_retire} if not.
+	(Suggested by Tomasz Kami\'{n}ski.)
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
@@ -371,6 +375,7 @@ C++ implementations, and additional implementations and use cases.
 
 Counting the two reference implementation, this section points out
 ten implementations of RCU-like mechanisms in C++.
+% Google's would make eleven, but approval pending.
 
 \subsection{Reference C++ Implementations}
 \label{sec:Reference C++ Implementations}
@@ -405,6 +410,13 @@ URL: \url{https://github.com/khizmax/libcds/tree/master/cds/urcu}
 Avi Kivity added a C++ implementation of RCU to the OSv kernel in
 2010.
 URL: \url{https://github.com/cloudius-systems/osv/blob/master/include/osv/rcu.hh}
+
+% Google uses an internally developed C++ RCU implementation that inspired
+% Andrew Hunter's and Geoffrey Romer's P0561 C++ working paper.
+% This implementation makes use of restartable sequences in addition to
+% facilities defined in the standard.
+% URL: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0561r4.html}
+% Awaiting approval from Geoffrey Romer.
 
 Isaac Gelado and Michael Garland describe use of a CUDA/C++ RCU in GPU
 programming in their 2019 PPoPP paper entitled ``Throughput-Oriented
@@ -471,14 +483,37 @@ The C-language userspace RCU library appeared around 2009.
 The QEMU project created its own version of this library in 2015.
 URL: \url{https://liburcu.org}
 
-Google uses an RCU implementation internally that inspired Andrew
-Hunter's and Geoffrey Romer's P0561 C++ working paper.
-URL: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0561r4.html}
-
 A list of additional RCU implementations in a variety of languages
 may be found in Sections~9.5.5, 9.5.5.2, and~9.6.3.3 of
 ``Is Parallel Programming Hard, And, If So, What Can You Do About It?''.
 URL: \url{https://kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.pdf}
+
+RCU is used heavily in the Linux kernel:
+
+\begin{enumerate}
+\item	\url{http://www.rdrop.com/~paulmck/RCU/linuxusage.html}
+\item	\url{http://www.rdrop.com/~paulmck/techreports/survey.2012.09.17a.pdf}
+\item	\url{http://www.rdrop.com/~paulmck/techreports/RCUUsage.2013.02.24a.pdf}
+\item	\url{https://dl.acm.org/doi/10.1145/3421473.3421481}
+\end{enumerate}
+
+RCU has provided orders-of-magnitude performance and scalability
+improvements in many situations, a few of which are listed below:
+
+\begin{enumerate}
+\item	\url{https://lwn.net/Kernel/Index/#Read-copy-update}
+\item	\url{http://www2.rdrop.com/~paulmck/RCU/hart_ipdps06.pdf}
+\item	\url{https://lkml.org/lkml/2004/8/20/137}
+\item	\url{https://www.linuxjournal.com/article/7124}
+\item	\url{https://www.linuxjournal.com/article/6993}
+\item	\url{http://www2.rdrop.com/~paulmck/RCU/rcu.FREENIX.2003.06.14.pdf}
+\item	\url{http://www2.rdrop.com/~paulmck/RCU/rcu.2002.07.08.pdf}
+\item	\url{http://www2.rdrop.com/~paulmck/RCU/rclock_OLS.2001.05.01c.pdf}
+\item	\url{https://docs.google.com/document/d/1X0lThx8OK0ZgLMqVoXiR4ZrGURHrXK6NyLRbeXe3Xac/edit?usp=sharing}
+\end{enumerate}
+
+Additional information may be found in Section~9.5.4 of the aforementioned
+``Is Parallel Programming Hard, And, If So, What Can You Do About It?''.
 
 \section{Acknowledgments}
 \label{sec:Acknowledgments}
