@@ -433,7 +433,7 @@ The corresponding journal paper appeared in the September 2018 Acta
 Electrotechnica et Informatica.
 
 In 2016, Pedro Ramalhete and Andreia Correia produced a C++ prototype
-implmentation of RCU in the ConcurrencyFreaks GitHub repository.
+implementation of RCU in the ConcurrencyFreaks GitHub repository.
 URL: \url{https://github.com/pramalhe/ConcurrencyFreaks/tree/master/CPP/papers/gracesharingurcu}
 This appeared in the August 2017 issue of ACM SIGPLAN Notices.
 URL: \url{https://dl.acm.org/doi/abs/10.1145/3155284.3019021}
@@ -450,8 +450,8 @@ Gamsa et al.~describe an RCU-like implementation within the Tornado
 and K42 research operating systems, both of which were coded in C++.
 Sections~5.2 and~5.3 of their 1999 OSDI paper entitled ``Tornado: Maximizing
 Locality and Concurrency in a Shared Memory Multiprocessor Operating
-System'' gives an overview of their mechanism for providing what they call
-``existence guarantees''.
+System'' gives an overview of their RCU-like mechanism for providing
+what they call ``existence guarantees''.
 URL: \url{https://www.usenix.org/legacy/events/osdi99/full_papers/gamsa/gamsa.pdf}
 
 There are implementations of RCU-like mechanisms in proprietary
@@ -497,6 +497,15 @@ RCU is used heavily in the Linux kernel:
 \item	\url{https://dl.acm.org/doi/10.1145/3421473.3421481}
 \end{enumerate}
 
+\subsection{Performance Implications}
+\label{sec:Performance Implications}
+
+RCU provides the best results in read-mostly situations involving linked
+data structures, and is most often used as a replacement for reader-writer
+locking.
+Experience in the Linux kernel indicates that well over half of the
+situations to which reader-writer locking is applied can be handled
+by RCU.
 RCU has provided orders-of-magnitude performance and scalability
 improvements in many situations, a few of which are listed below:
 
