@@ -34,8 +34,7 @@ Such features might include:
 \item	Multiple RCU domains.
 	For example, SRCU provides these in the Linux kernel.
 	However, RCU was in the Linux for four years before
-	this was needed, so it is not yet in the TS nor is it
-	in the proposal for C++26.
+	this was needed, so it is not in this proposal for C++26.
 \item	Special-purpose RCU implementations.
 	For example, the Linux kernel has specialized implementations
 	for preemptible environments, single-CPU systems,
@@ -43,22 +42,31 @@ Such features might include:
 	the Linux kernel's tracing and extended Berkeley Packet
 	Filter (eBPF) use cases.
 	However, none of these seem applicable to userspace applications,
-	so none of them are yet in the TS or yet in in the proposal
-	for C++26.
+	so none of them are in this proposal for C++26.
 \item	Polling grace-period-wait APIs.
 	These allow non-blocking algorithms to interface with RCU
 	grace periods, for example, in the Linux kernel, they allow
 	NMI handlers to do RCU updates.
 	(NMI handlers could do RCU readers from the get-go.)
-	However, RCU was in the Linux kernel for more than a decade
-	before such APIs were needed, so they are not yet in the
-	TS nor are they in the proposal for C++26.
+	However, RCU was in the Linux kernel for more than a decade before
+	such APIs were needed, so they are not in this proposal for C++26.
 \item	Async-friendly APIs for RCU's blocking APIs.
 	These might leverage the aforementioned polling APIs.
+	However, more work is required to determine exactly what support
+	is required, so they are not in this proposal for C++26.
 \item	A free function similar to \tcode{rcu_retire} that uses
 	an \tcode{rcu_obj_base} if available, but which invokes
 	\tcode{rcu_retire} if not.
 	(Suggested by Tomasz Kami\'{n}ski.)
+	However, this facility has not yet been spotted in the wild,
+	so it is not in this proposal for C++26.
+\item	A memory allocator might be supplied for the use of
+	\tcode{rcu_retire}.
+	Please note that if different allocators can be supplied to
+	different calls to \tcode{rcu_retire}, then there must be a way
+	to tag the allocated memory with the corresponding deleter.
+	However, this facility has not yet been spotted in the wild,
+	so it is not in this proposal for C++26.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
@@ -68,8 +76,7 @@ Such features might include:
 	But it is not clear which (if any) of these would be accepted
 	into the Linux kernel today, given the properties of modern
 	computer hardware.
-	Therefore, these are not yet in the TS nor are they in the
-	proposal for C++26.
+	Therefore, these are not in this proposal for C++26.
 \end{enumerate}
 
 The snapshot library described in P0561R5 (``RAII Interface for Deferred
@@ -275,7 +282,8 @@ use the \tcode{->retire()} member function.
 Table~\ref{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
 compares reader-writer locking and non-intrusive RCU, that is, when the
 RCU-protected data items do \emph{not} inherit from
-\tcode{std::rcu_obj_base<T>} and use the \tcode{std::rcu_retire()} free function.
+\tcode{std::rcu_obj_base<T>} and instead use the \tcode{std::rcu_retire()}
+free function.
 
 \begin{table*}
 \renewcommand*{\arraystretch}{1.25}
@@ -362,7 +370,7 @@ We originally decided to do both papers' wording together to illustrate
 their close relationship, and similar design structure, while hopefully
 making it easier for the reader to review together for this first
 presentation.
-As noted above, they have been split on request.
+As noted above, they have been split on the committee's request.
 
 This wording is based P0566r5, which in turn was based on that of on
 n4618 draft [N4618].
@@ -371,7 +379,8 @@ n4618 draft [N4618].
 \label{sec:Source-Code Access}
 
 This section presents C++ reference implementations, other
-C++ implementations, and additional implementations and use cases.
+C++ implementations, additional implementations and use cases,
+and performance implications.
 
 Counting the two reference implementation, this section points out
 ten implementations of RCU-like mechanisms in C++.
