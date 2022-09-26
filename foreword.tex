@@ -383,8 +383,7 @@ C++ implementations, additional implementations and use cases,
 and performance implications.
 
 Counting the two reference implementation, this section points out
-ten implementations of RCU-like mechanisms in C++.
-% Google's would make eleven, but approval pending.
+eleven implementations of RCU-like mechanisms in C++.
 
 \subsection{Reference C++ Implementations}
 \label{sec:Reference C++ Implementations}
@@ -420,12 +419,11 @@ Avi Kivity added a C++ implementation of RCU to the OSv kernel in
 2010.
 URL: \url{https://github.com/cloudius-systems/osv/blob/master/include/osv/rcu.hh}
 
-% Google uses an internally developed C++ RCU implementation that inspired
-% Andrew Hunter's and Geoffrey Romer's P0561 C++ working paper.
-% This implementation makes use of restartable sequences in addition to
-% facilities defined in the standard.
-% URL: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0561r4.html}
-% Awaiting approval from Geoffrey Romer.
+Google uses an internally developed C++ RCU implementation alluded to by
+Andrew Hunter's and Geoffrey Romer's P0561 C++ working paper.
+This implementation makes use of restartable sequences in addition to
+facilities defined in the standard.
+URL: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0561r4.html}
 
 Isaac Gelado and Michael Garland describe use of a CUDA/C++ RCU in GPU
 programming in their 2019 PPoPP paper entitled ``Throughput-Oriented
