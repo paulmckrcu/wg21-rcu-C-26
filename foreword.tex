@@ -67,6 +67,11 @@ Such features might include:
 	to tag the allocated memory with the corresponding deleter.
 	However, this facility has not yet been spotted in the wild,
 	so it is not in this proposal for C++26.
+\item	APIs could be provided to allow the user control over when
+	deleters are scheduled and in what context they are invoked.
+	Possibilities for this control include special worker threads,
+	a "perform RCU reclamation now" function, use of timer handlers,
+	or use of non-thread executors.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
