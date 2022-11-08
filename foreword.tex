@@ -70,8 +70,26 @@ Such features might include:
 \item	APIs could be provided to allow the user control over when
 	deleters are scheduled and in what context they are invoked.
 	Possibilities for this control include special worker threads,
-	a "perform RCU reclamation now" function, use of timer handlers,
+	a ``perform RCU reclamation now'' function, use of timer handlers,
 	or use of non-thread executors.
+	In the meantime, implementations can choose to invoke deleters
+	from \tcode{rcu_synchronize()} and \tcode{rcu_barrier()}.
+	They may also choose to invoke deleters from \tcode{.retire()}
+	and \tcode{rcu_retire()}, but doing so restricts users from
+	acquiring a given resource when invoking these functions that
+	is also acquired in a deleter passes to either of these functions.
+\item	Memory-allocator interfaces providing RCU-mediated typesafe
+	memory could be provided similar to the Linux kernel's
+	\tcode{SLAB_TYPESAFE_BY_RCU}.
+	In this scheme, an object from such an allocator can be freed
+	and reallocated immediately, even in presence of pre-existing
+	region of RCU protection.
+	However, given such a region, such an object cannot be reallocated
+	as some other type.
+	The object can change type only after all pre-existing regions
+	of RCU protection complete.
+	The readers must do some sort of verification, for example,
+	mediated by reference counting, locking, or sequence locking.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
