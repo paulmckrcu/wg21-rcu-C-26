@@ -90,6 +90,25 @@ Such features might include:
 	of RCU protection complete.
 	The readers must do some sort of verification, for example,
 	mediated by reference counting, locking, or sequence locking.
+\item	In order to wait for all pre-existing regions of RCU protection,
+	the implementation must find them all.
+	There are a number of ways of doing this, including:
+	(1)~Having \tcode{rcu_domain::lock} make the running thread known
+	to RCU if it is not already known (used by one of the userspace
+	RCU implementations),
+	(2)~Providing some means for iterating over all threads (used
+	by some Linux-kernel RCU flavors), and
+	(3)~Using a hashing or sharding technique to track readers
+	independently of the running threads (used by some textbook
+	implementations adapted for small constrained systems).
+	One alternative not explicitly supported by this initial
+	proposal is to provide thread-registration API members.
+	There is implementation experience with this technique,
+	for example, the C-language userspace RCU provide
+	\tcode{rcu_register_thread()} and \tcode{rcu_unregister_thread()}
+	to cause userspace RCU's grace-period computation to start
+	or stop paying attention to the calling \tcode{std::thread},
+	respectively.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
