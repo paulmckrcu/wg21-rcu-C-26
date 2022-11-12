@@ -395,6 +395,70 @@ When using this style, RCU-protected data items need not inherit from
 \section{History}
 \label{sec:History}
 
+\subsection{Kona 2022}
+\label{sec:Kona 2022}
+
+This paper updates P2545R1 based on discussions in LEWG and offline
+at the Kona meeting.
+
+LEWG straw polls were as shown in the following sections.
+
+\subsubsection{Poll 1}
+\label{sec:kona2022:Poll 1}
+
+Remove the defaulted \tcode{rcu_domain} parameter from
+\tcode{rcu_synchronize}, \tcode{rcu_barrier}, \tcode{rcu_retire}, and
+\tcode{rcu_obj_base::retire}.
+
+\begin{tabular}{c|c|c|c|c}
+SF & F &  N & A & SA \\
+\hline
+ 4 & 5 & 12 & 1 &  0 \\
+\end{tabular}
+
+Attendance: 23 (in-person) + 7 (online) \\
+\# of Authors: 2 \\
+Author Position: 2 x N \\
+Outcome: No consensus \\
+
+\subsubsection{Poll 2}
+\label{sec:kona2022:Poll 2}
+
+Remove \tcode{rcu_domain} (but keep \tcode{rcu_default_domain} that returns a BasicLockable object).
+
+\begin{tabular}{c|c|c|c|c}
+SF & F &  N & A & SA \\
+\hline
+ 3 & 8 &  1 & 7 &  0 \\
+\end{tabular}
+
+Attendance: 22 (in-person) + 7 (online) \\
+\# of Authors: 2 \\
+Author Position: 2 x WA \\
+Outcome: No consensus \\
+
+\subsubsection{Poll 3}
+\label{sec:kona2022:Poll 3}
+
+Send P2545R1 (why RCU should be in C++26) to Library for C++26 classified as B3 - addition, to be confirmed with a Library Evolution electronic poll.
+
+\begin{tabular}{c|c|c|c|c}
+SF & F &  N & A & SA \\
+\hline
+10 & 7 &  1 & 2 &  0 \\
+\end{tabular}
+
+Attendance: 25 (in-person) + 7 (remote) \\
+\# of Authors: 2 \\
+Author Position: 2 x SF \\
+Outcome: Consensus \\
+
+Statement from ``weakly against'' voter: I want to get rid of the object
+and have a private constructor.
+
+\subsection{Older History}
+\label{sec:Older History}
+
 This paper updates P2545R0 based on discusssions in SG1 and LEWG.
 
 P2545R0 was derived from N4895, which was in turn based on P1122R4.
