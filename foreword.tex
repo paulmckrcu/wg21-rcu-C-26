@@ -189,8 +189,8 @@ perhaps most notably the Folly RCU library.
 We propose a new feature-test macro
 \tcode{__cpp_lib_rcu} be added to Section~17.3.2 of the IS.
 
-\section{Tony Tables}
-\label{sec:Tony Tables}
+\section{Comparison Tables}
+\label{sec:Comparison Tables}
 
 Although RCU can be applied to a great many use cases, its most common
 use case is as a replacement for reader-writer locking.
@@ -253,11 +253,11 @@ used after releasing that same lock.
 		& \tcode{\}} \\
 	\hline
 \end{tabular}
-\caption{Tony Table for Reader-Writer Locking and Intrusive RCU}
-\label{tab:Tony Table for Reader-Writer Locking and Intrusive RCU}
+\caption{Comparison Table for Reader-Writer Locking and Intrusive RCU}
+\label{tab:Comparison Table for Reader-Writer Locking and Intrusive RCU}
 \end{table*}
 
-Table~\ref{tab:Tony Table for Reader-Writer Locking and Intrusive RCU}
+Table~\ref{tab:Comparison Table for Reader-Writer Locking and Intrusive RCU}
 compares reader-writer locking and intrusive RCU, that is, when the
 RCU-protected data items inherit from \tcode{std::rcu_obj_base<T>} and
 use the \tcode{->retire()} member function.
@@ -317,11 +317,11 @@ use the \tcode{->retire()} member function.
 		& \tcode{\}} \\
 	\hline
 \end{tabular}
-\caption{Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
-\label{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
+\caption{Comparison Table for Reader-Writer Locking and Non-Intrusive RCU}
+\label{tab:Comparison Table for Reader-Writer Locking and Non-Intrusive RCU}
 \end{table*}
 
-Table~\ref{tab:Tony Table for Reader-Writer Locking and Non-Intrusive RCU}
+Table~\ref{tab:Comparison Table for Reader-Writer Locking and Non-Intrusive RCU}
 compares reader-writer locking and non-intrusive RCU, that is, when the
 RCU-protected data items do \emph{not} inherit from
 \tcode{std::rcu_obj_base<T>} and instead use the \tcode{std::rcu_retire()}
@@ -382,11 +382,11 @@ free function.
 		& \tcode{\}} \\
 	\hline
 \end{tabular}
-\caption{Tony Table for Reader-Writer Locking and Synchronous RCU}
-\label{tab:Tony Table for Reader-Writer Locking and Synchronous RCU}
+\caption{Comparison Table for Reader-Writer Locking and Synchronous RCU}
+\label{tab:Comparison Table for Reader-Writer Locking and Synchronous RCU}
 \end{table*}
 
-Table~\ref{tab:Tony Table for Reader-Writer Locking and Synchronous RCU}
+Table~\ref{tab:Comparison Table for Reader-Writer Locking and Synchronous RCU}
 compares reader-writer locking and synchronous RCU, that is, when the
 RCU updater does an explicit wait for readers.
 When using this style, RCU-protected data items need not inherit from
