@@ -114,6 +114,9 @@ Such features might include:
 	and \tcode{rcu_retire()}, but doing so restricts users from
 	acquiring a given resource when invoking these functions that
 	is also acquired in a deleter passes to either of these functions.
+	However, there is very little implementation experience with
+	such a facility, and none that we are aware of in C++.
+	This facility is thus not included in this proposal for C++26.
 \item	Memory-allocator interfaces providing RCU-mediated typesafe
 	memory could be provided similar to the Linux kernel's
 	\tcode{SLAB_TYPESAFE_BY_RCU}.
@@ -126,6 +129,8 @@ Such features might include:
 	of RCU protection complete.
 	The readers must do some sort of verification, for example,
 	mediated by reference counting, locking, or sequence locking.
+	However, a C++ implementation of this facility has not yet been
+	spotted in the wild, so it is not in this proposal for C++26.
 \item	In order to wait for all pre-existing regions of RCU protection,
 	the implementation must find them all.
 	There are a number of ways of doing this, including:
@@ -145,6 +150,10 @@ Such features might include:
 	to cause userspace RCU's grace-period computation to start
 	or stop paying attention to the calling \tcode{std::thread},
 	respectively.
+
+	However, there is no implementation experience with any C++
+	RCU implementation that we are aware of.
+	This facility is thus not included in this proposal for C++26.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
