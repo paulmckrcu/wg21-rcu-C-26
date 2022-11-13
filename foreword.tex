@@ -67,6 +67,42 @@ Such features might include:
 	to tag the allocated memory with the corresponding deleter.
 	However, this facility has not yet been spotted in the wild,
 	so it is not in this proposal for C++26.
+
+	In the meantime, users needing full control over memory allocation
+	can use the \tcode{rcu_obj_base} class's \tcode{.retire()}
+	member function.
+	With this instrusive approach, RCU need never allocate memory.
+
+	In their turn, library implementers have a number of
+	\tcode{rcu_retire()} memory-provisioning strategies at their
+	disposal give the current RCU API proposed for C++26:
+
+	\begin{enumerate}
+	\item	Never allocate.
+		Instead, on each call to \tcode{rcu_retire()}, invoke
+		\tcode{rcu_synchronize()} then invoke the deleter.
+	\item	Preallocate at least two blocks of memory, each containing
+		some reasonable number of slots to record retired objects
+		awaiting deletion.
+		Each block must also inherit from \tcode{rcu_obj_base}.
+		Fill in slots of the current block until either it fills,
+		memory runs low, or some reasonable period of time has
+		elapsed, then pass that block to \tcode{.retire()}.
+		Switch to the next block.
+		When a given block's deleter is invoked, in turn invoke
+		the deleter on each slot and then make the block available
+		for use by subsequent \tcode{rcu_retire()} invocations.
+		If \tcode{rcu_retire()} runs out of blocks, fall back
+		to strategy \#a.
+	\item	Proceed as in strategy \#b, but if \tcode{rcu_retire()}
+		runs out of blocks, allocate some more.
+		If memory allocation fails, fall back to strategy \#a.
+	\item	Proceed as in strategy \#c, but free blocks if a glut
+		builds up.
+	\item	Proceed as in strategy \#d, but free each block within
+		its deleter.
+	\end{enumerate}
+
 \item	APIs could be provided to allow the user control over when
 	deleters are scheduled and in what context they are invoked.
 	Possibilities for this control include special worker threads,
