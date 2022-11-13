@@ -395,6 +395,25 @@ When using this style, RCU-protected data items need not inherit from
 \section{History}
 \label{sec:History}
 
+\subsection{Changes From P2545R1 to P2545R2}
+\label{sec:Changes From P2545R1 to P2545R2}
+
+\begin{itemize}
+\item	Prototype a private constructor for \tcode{rcu_domain}.
+\item	Record straw polls from 2022 Kona LEWG review.
+\item	Update ``Tony Tables'' to ``Comparison Tables''.
+\item	Mention a number of longer-term possible changes:
+	\begin{itemize}
+	\item	Provide means for user to control the context in
+		which deleters are invoked and the timing of their
+		invocation.
+	\item	RCU-mediated typesafe memory, perhaps similar to the
+		Linux kernel's \tcode{SLAB_TYPESAFE_BY_RCU}.
+	\item	Manual thread registration for threads other than
+		\tcode{std::thread}.
+	\end{itemize}
+\end{itemize}
+
 \subsection{Kona 2022}
 \label{sec:Kona 2022}
 
@@ -455,6 +474,31 @@ Outcome: Consensus \\
 
 Statement from ``weakly against'' voter: I want to get rid of the object
 and have a private constructor.
+
+\subsection{Changes From P2545R0 to P2545R1}
+\label{sec:Changes From P2545R0 to P2545R1}
+
+These changes to P2545R0 resulted in P2545R1, based on discussions
+in virtual SG1 and LEWG meetings:
+
+\begin{itemize}
+\item	Add ``Tony Tables'' for intrusive, non-intrusive, and
+	synchronous use cases.
+\item	Switch from experimental to \tcode{std::} namespace.
+\item	Provide rationale for adding RCU to the IS.
+\item	Add a feature-test macro.
+\item	Add a list of C++ RCU implementations.
+\item	Add Fedor Pikus quote about large concurrent applications
+	and inadvertent uses of RCU.
+\item	Add a list of publications showing performance benefits of RCU.
+\item	Mention a number of longer-term possible changes:
+	\begin{itemize}
+	\item	Async-friendly RCU APIs.
+	\item	A free function similar to \tcode{rcu_retire()} that
+		uses an \tcode{rcu_obj_base} if available and invokes
+		\tcode{rcu_retire()} if not.
+	\end{itemize}
+\end{itemize}
 
 \subsection{Older History}
 \label{sec:Older History}
