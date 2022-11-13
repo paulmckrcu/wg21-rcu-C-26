@@ -444,9 +444,11 @@ When using this style, RCU-protected data items need not inherit from
 \label{sec:Changes From P2545R1 to P2545R2}
 
 \begin{itemize}
-\item	Prototype a private constructor for \tcode{rcu_domain}.
+\item	Prototype a private constructor for \tcode{rcu_domain} in response
+	to guidance during 2022 Kona LEWG review.
 \item	Record straw polls from 2022 Kona LEWG review.
-\item	Update ``Tony Tables'' to ``Comparison Tables''.
+\item	Update ``Tony Tables'' to ``Comparison Tables'' in response to
+	guidance during 2022 Kona LEWG review.
 \item	Mention a number of longer-term possible changes:
 	\begin{itemize}
 	\item	Provide means for user to control the context in
@@ -455,7 +457,10 @@ When using this style, RCU-protected data items need not inherit from
 	\item	RCU-mediated typesafe memory, perhaps similar to the
 		Linux kernel's \tcode{SLAB_TYPESAFE_BY_RCU}.
 	\item	Manual thread registration for threads other than
-		\tcode{std::thread}.
+		\tcode{std::thread}, in response to discussions during
+		2022 Kona LEWG review.
+	\item	Give user and implementer advice on \tcode{rcu_retire()}
+		metadata handling.
 	\end{itemize}
 \end{itemize}
 
