@@ -440,13 +440,17 @@ When using this style, RCU-protected data items need not inherit from
 \section{History}
 \label{sec:History}
 
+More detailed history may be found here:
+\url{https://github.com/paulmckrcu/wg21-rcu-C-26.git}.
+
 \subsection{Changes From P2545R1 to P2545R2}
 \label{sec:Changes From P2545R1 to P2545R2}
 
 \begin{itemize}
 \item	Prototype a private constructor for \tcode{rcu_domain} in response
 	to guidance during 2022 Kona LEWG review.
-\item	Record straw polls from 2022 Kona LEWG review.
+\item	Record straw polls from 2022 Kona LEWG review and from
+	September 2022 virtual LEWG review.
 \item	Update ``Tony Tables'' to ``Comparison Tables'' in response to
 	guidance during 2022 Kona LEWG review.
 \item	Mention a number of longer-term possible changes:
@@ -469,6 +473,12 @@ When using this style, RCU-protected data items need not inherit from
 
 This paper updates P2545R1 based on discussions in LEWG and offline
 at the Kona meeting.
+Notes may be found here:
+
+\begin{itemize}
+\item	\url{https://docs.google.com/document/d/1QWFqwcJ6W2QOYr0ofyigU6Ej-XiNLGQfkTUf_6PZLZk/edit#}
+\item	\url{https://github.com/cplusplus/papers/issues/1206#issuecomment-1310849132}
+\end{itemize}
 
 LEWG straw polls were as shown in the following sections.
 
@@ -488,7 +498,7 @@ SF & F &  N & A & SA \\
 Attendance: 23 (in-person) + 7 (online) \\
 \# of Authors: 2 \\
 Author Position: 2 x N \\
-Outcome: No consensus \\
+Outcome: No consensus
 
 \subsubsection{Poll 2}
 \label{sec:kona2022:Poll 2}
@@ -504,7 +514,7 @@ SF & F &  N & A & SA \\
 Attendance: 22 (in-person) + 7 (online) \\
 \# of Authors: 2 \\
 Author Position: 2 x WA \\
-Outcome: No consensus \\
+Outcome: No consensus
 
 \subsubsection{Poll 3}
 \label{sec:kona2022:Poll 3}
@@ -520,10 +530,54 @@ SF & F &  N & A & SA \\
 Attendance: 25 (in-person) + 7 (remote) \\
 \# of Authors: 2 \\
 Author Position: 2 x SF \\
-Outcome: Consensus \\
+Outcome: Consensus
 
 Statement from ``weakly against'' voter: I want to get rid of the object
 and have a private constructor.
+
+\subsubsection{Action Items}
+\label{sec:kona2022:Action Items}
+
+\begin{itemize}
+\item	Add a section discussing thread registration (done).
+\item	Get feedback from implementers.
+\item	Bikeshed \tcode{rcu_obj_base}.
+\item	Make \tcode{rcu_domains} constructor private (done).
+\end{itemize}
+
+\subsection{September 20 2022 LEWG Teleconference}
+\label{sec:September 20 2022 LEWG Teleconference}
+
+This paper updates P2545R0 based on discussions at LEWG and offlist.
+Notes may be found here:
+
+\begin{itemize}
+\item	\url{https://wiki.edg.com/bin/view/Wg21telecons2022/P2545?twiki_redirect_cache=93b9b23e9c2596b6802a09f9f5ffb9bd}
+\item	\url{https://github.com/cplusplus/papers/issues/1206#issuecomment-1256428844}
+\end{itemize}
+
+\subsubsection{Poll}
+\label{sec:LEWG-2022-09-20:Poll}
+
+RCU should target the International Standard instead of the Concurrency Technical Specification v2.
+
+\begin{tabular}{c|c|c|c|c}
+SF & F &  N & A & SA \\
+\hline
+10 & 7 &  1 & 2 &  0 \\
+\end{tabular}
+
+Attendance: 25 \\
+\# of Authors: 4 \\
+Author Position: 4 x SF \\
+Outcome: Consensus in favor.
+
+Statements from ``weakly against'' voters:
+
+\begin{itemize}
+\item	More fleshed out motivation could change my ``A'' to ``F''.
+\item	More evidence of existing practice might change my mind.
+\end{itemize}
 
 \subsection{Changes From P2545R0 to P2545R1}
 \label{sec:Changes From P2545R0 to P2545R1}
