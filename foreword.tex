@@ -164,6 +164,20 @@ Such features might include:
 	into the Linux kernel today, given the properties of modern
 	computer hardware.
 	Therefore, these are not in this proposal for C++26.
+\item	A future version of the standard might say something about
+	memory-leak detectors.
+	In the meantime, an RCU user can ensure clean shutdown as follows:
+	\begin{enumerate}
+	\item	Ceasing to invoke both \tcode{retire()} and
+		\tcode{rcu_retire}.
+	\item	Invoking \tcode{rcu_barrier()}.
+	\end{enumerate}
+	Implementations wishing to assist users in this task may
+	invoke \tcode{rcu_barrier()} before destructing the default
+	\tcode{rcu_domain} object, but after destructing all user objects.
+	Any standard-library invocations of \tcode{retire()} and
+	\tcode{rcu_retire} would also need to be carried out before
+	destructing the default \tcode{rcu_domain} object.
 \end{enumerate}
 
 The snapshot library described in P0561R5 (``RAII Interface for Deferred
