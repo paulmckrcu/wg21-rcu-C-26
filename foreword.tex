@@ -178,6 +178,14 @@ Such features might include:
 	Any standard-library invocations of \tcode{retire()} and
 	\tcode{rcu_retire} would also need to be carried out before
 	destructing the default \tcode{rcu_domain} object.
+
+	Of course, those wanting clean shutdown should avoid the rare
+	but real use case in which a evaluation scheduled by
+	\tcode{retire()} or \tcode{rcu_retire()} unconditionally
+	schedules another evaluation, as so on indefinitely.
+	Such use cases should instead include some mechanism that prevents
+	subsequent invocations of \tcode{retire()} and \tcode{rcu_retire}
+	before the shutdown-time call to \tcode{rcu_barrier()}.
 \end{enumerate}
 
 The snapshot library described in P0561R5 (``RAII Interface for Deferred
@@ -480,6 +488,7 @@ More detailed history may be found here:
 		2022 Kona LEWG review.
 	\item	Give user and implementer advice on \tcode{rcu_retire()}
 		metadata handling.
+	\item	Interactions with memory-leak detectors.
 	\end{itemize}
 \end{itemize}
 
