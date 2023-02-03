@@ -54,16 +54,16 @@ Such features might include:
 	These might leverage the aforementioned polling APIs.
 	However, more work is required to determine exactly what support
 	is required, so they are not in this proposal for C++26.
-\item	A free function similar to \tcode{rcu_retire} that uses
+\item	A free function similar to \tcode{rcu_retire()} that uses
 	an \tcode{rcu_obj_base} if available, but which invokes
-	\tcode{rcu_retire} if not.
+	\tcode{rcu_retire()} if not.
 	(Suggested by Tomasz Kami\'{n}ski.)
 	However, this facility has not yet been spotted in the wild,
 	so it is not in this proposal for C++26.
 \item	A memory allocator might be supplied for the use of
-	\tcode{rcu_retire}.
+	\tcode{rcu_retire()}.
 	Please note that if different allocators can be supplied to
-	different calls to \tcode{rcu_retire}, then there must be a way
+	different calls to \tcode{rcu_retire()}, then there must be a way
 	to tag the allocated memory with the corresponding deleter.
 	However, this facility has not yet been spotted in the wild,
 	so it is not in this proposal for C++26.
@@ -169,22 +169,26 @@ Such features might include:
 	In the meantime, an RCU user can ensure clean shutdown as follows:
 	\begin{enumerate}
 	\item	Ceasing to invoke both \tcode{.retire()} and
-		\tcode{rcu_retire}.
+		\tcode{rcu_retire()}.
 	\item	Invoking \tcode{rcu_barrier()}.
 	\end{enumerate}
 	Implementations wishing to assist users in this task may
 	invoke \tcode{rcu_barrier()} before destructing the default
 	\tcode{rcu_domain} object, but after destructing all user objects.
 	Any standard-library invocations of \tcode{.retire()} and
-	\tcode{rcu_retire} would also need to be carried out before
+	\tcode{rcu_retire()} would also need to be carried out before
 	destructing the default \tcode{rcu_domain} object.
+	Users of implementations that do not assist in this manner
+	should further refrain from invoking either \tcode{.retire()}
+	or \tcode{rcu_retire()}, whether directly or indirectly, from the
+	destructor of a global static object.
 
 	Of course, those wanting clean shutdown should avoid the rare
 	but real use case in which an evaluation scheduled by
 	\tcode{.retire()} or \tcode{rcu_retire()} unconditionally
 	schedules another evaluation, and so on indefinitely.
 	Such use cases should instead include some mechanism that prevents
-	subsequent invocations of \tcode{.retire()} and \tcode{rcu_retire}
+	subsequent invocations of \tcode{.retire()} and \tcode{rcu_retire()}
 	before the shutdown-time call to \tcode{rcu_barrier()}.
 \end{enumerate}
 
