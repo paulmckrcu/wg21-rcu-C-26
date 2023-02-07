@@ -54,6 +54,9 @@ Such features might include:
 	These might leverage the aforementioned polling APIs.
 	However, more work is required to determine exactly what support
 	is required, so they are not in this proposal for C++26.
+	In the meantime, async code can avoid \tcode{rcu_synchronize()}
+	in favor of \tcode{rcu_retire()}, with the scheduled deleter
+	interacting as needed with async.
 \item	A free function similar to \tcode{rcu_retire()} that uses
 	an \tcode{rcu_obj_base} if available, but which invokes
 	\tcode{rcu_retire()} if not.
