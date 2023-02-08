@@ -100,7 +100,7 @@ protected:
   rcu_obj_base(const rcu_obj_base&&) = default;
   rcu_obj_base& operator=(const rcu_obj_base&) = default;
   rcu_obj_base& operator=(const rcu_obj_base&&) = default;
-  ~rcu_obj_base();
+  ~rcu_obj_base() = default;
 private:
   D @\exposid{deleter}@;            // exposition only
 };
