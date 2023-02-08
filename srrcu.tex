@@ -96,6 +96,9 @@ public:
   void retire(D d = D(), rcu_domain& dom = rcu_default_domain()) noexcept;
 protected:
   rcu_obj_base() = default;
+  rcu_obj_base(const rcu_obj_base&) = default;
+  rcu_obj_base& operator=(const rcu_obj_base&) = default;
+  ~rcu_obj_base();
 private:
   D @\exposid{deleter}@;            // exposition only
 };
