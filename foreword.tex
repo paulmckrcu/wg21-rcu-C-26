@@ -472,6 +472,39 @@ When using this style, RCU-protected data items need not inherit from
 More detailed history may be found here:
 \url{https://github.com/paulmckrcu/wg21-rcu-C-26.git}.
 
+\subsection{Changes From P2545R2 to D2545R3}
+\label{sec:Changes From P2545R2 to D2545R3}
+
+Most of these changes were motivated by an LWG review of parallel sections
+of P2530R2 (``Why Hazard Pointers should be in C++26'') that was carried
+out at the 2023 Issaquah meeting.
+
+\begin{itemize}
+\item	Editorial updates.
+\item	Add additional non-normative user advice for use of memory-leak
+	detectors.
+\item	Add non-normative user advice for interacting with async code.
+\item	Use immutable references to sections of the IS.
+\item	Remove ``A client-supplied template argument'' from the description
+	of \tcode{rcu_obj_base}.
+	(Given that \tcode{D} is a parameter, it is clearly supplied by
+	the client.)
+\item	Add the other five constructors, assignment operators, and
+	destructor to \tcode{rcu_obj_base}.
+\item	Expand the point about parameter \tcode{T} being an incomplete
+	type to include the fact that it must be complete before any
+	resulting specialization of \tcode{rcu_obj_base} is referenced.
+\item	Move the point about \tcode{retire} invoking scheduled evaluations
+	from a remark to normative text.
+	The point about potential deadlock remains in a non-normative note.
+\item	Convert from \tcode{L'} and \tcode{U'} to \tcode{L2} and
+	\tcode{U2}, respectively.
+\end{itemize}
+
+These changes nevertheless need LWG review, given that there might be
+both typos and subtle differences between hazard pointers and RCU that
+require different modifications to the RCU paper.
+
 \subsection{Changes From P2545R1 to P2545R2}
 \label{sec:Changes From P2545R1 to P2545R2}
 
