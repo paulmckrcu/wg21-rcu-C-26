@@ -152,12 +152,8 @@ well-defined behavior and does not throw an exception.
 \effects
 Evaluates \tcode{\exposid{deleter} = std::move(d)} and schedules
 the evaluation of the expression \tcode{de\-let\-er(ad\-dress\-of(x))} in the domain \tcode{dom}.
+May invoke scheduled evaluations in \tcode{dom}.
 
-\pnum
-\remarks
-It is implementation-defined whether or not scheduled
-evaluations in \tcode{dom} can be invoked by the \tcode{retire}
-function.
 \begin{note}
 If such evaluations acquire resources held across any invocation of
 retire on \tcode{dom}, deadlock can occur.
