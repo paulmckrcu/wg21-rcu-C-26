@@ -97,7 +97,9 @@ public:
 protected:
   rcu_obj_base() = default;
   rcu_obj_base(const rcu_obj_base&) = default;
+  rcu_obj_base(const rcu_obj_base&&) = default;
   rcu_obj_base& operator=(const rcu_obj_base&) = default;
+  rcu_obj_base& operator=(const rcu_obj_base&&) = default;
   ~rcu_obj_base();
 private:
   D @\exposid{deleter}@;            // exposition only
