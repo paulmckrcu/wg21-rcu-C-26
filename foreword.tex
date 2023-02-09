@@ -494,8 +494,9 @@ out at the 2023 Issaquah meeting.
 \item	Expand the point about parameter \tcode{T} being an incomplete
 	type to include the fact that it must be complete before any
 	resulting specialization of \tcode{rcu_obj_base} is referenced.
-\item	Move the point about \tcode{retire} invoking scheduled evaluations
-	from a remark to normative text.
+\item	Move the point about \tcode{.retire()}, \tcode{.unlock()}, and
+	\tcode{rcu_retire()} invoking scheduled evaluations
+	from remarks to normative text.
 	The point about potential deadlock remains in a non-normative note.
 \item	Convert from \tcode{L'} and \tcode{U'} to \tcode{L2} and
 	\tcode{U2}, respectively.
