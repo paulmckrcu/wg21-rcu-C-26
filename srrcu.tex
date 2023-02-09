@@ -230,12 +230,9 @@ call to \tcode{unlock}.
 \effects
 Closes the unclosed region of RCU protection that was
 most recently opened.
+May invoke scheduled evaluations in \tcode{*this}.
 
 \pnum
-\remarks
-It is implementation-defined whether or not scheduled
-evaluations in \tcode{*this} can be invoked by the \tcode{unlock}
-function.
 \begin{note}
 If such evaluations acquire resources held across any invocation
 of \tcode{unlock} on \tcode{*this}, deadlock can occur.
@@ -337,6 +334,7 @@ Initializes an object \tcode{d1} of type \tcode{D} from
 \tcode{std::move(d)}.
 Schedules the evaluation of \tcode{d1(p)} in the domain
 \tcode{dom}.
+May invoke scheduled evaluations in \tcode{dom}.
 \begin{note}
 If \tcode{rcu_retire} exits via an exception, no evaluation
 is scheduled.
@@ -349,12 +347,8 @@ Any exception that would be caught by a handler of type
 Any exception thrown by the initialization of \tcode{d1}.
 
 \pnum
-\remarks
-It is implementation-defined whether or not scheduled
-evaluations in dom can be invoked by the \tcode{rcu_retire}
-function.
 \begin{note}
-If such evaluations acquire resources held across any invocation
+If scheduled evaluations acquire resources held across any invocation
 of \tcode{rcu_retire} on \tcode{dom}, deadlock can occur.
 \end{note}
 
