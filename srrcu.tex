@@ -12,7 +12,8 @@ specified actions such as deletion at some later time.
 
 \pnum
 A class type \tcode{T} is \defn{rcu-protectable} if it has exactly one
-public base class of type \tcode{rcu_obj_base<T,D>} for some \tcode{D}
+base class of type \tcode{rcu_obj_base<T,D>} for some \tcode{D}, and
+that base is public and non-virtual,
 and no base classes of type \tcode{rcu_obj_base<X,Y>} for any other
 combination \tcode{X}, \tcode{Y}. An object is rcu-protectable if it is
 of rcu-protectable type.
