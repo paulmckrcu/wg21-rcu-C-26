@@ -25,7 +25,7 @@ sequenced before $U$ and either
 
 \begin{itemize}
 \item	no other invocation of \tcode{lock} on \tcode{dom} is sequenced
-	after $L$ and before $U$ or
+	after $L$ and before $U$, or
 \item	every invocation of \tcode{unlock} $U2$ on \tcode{dom} such
 	that $L$ is sequenced before $U2$ and $U2$
 	is sequenced before $U$ corresponds to an invocation of
@@ -50,7 +50,7 @@ evaluating $F$.
 
 \pnum
 The evaluation of a scheduled evaluation is potentially concurrent with
-any other such evaluation. Each scheduled evaluation is evaluated at
+any other scheduled evaluation. Each scheduled evaluation is evaluated at
 most once.
 
 \rSec2[saferecl.rcu.syn]{Header \tcode{<rcu>} synopsis}
@@ -98,9 +98,9 @@ public:
 protected:
   rcu_obj_base() = default;
   rcu_obj_base(const rcu_obj_base&) = default;
-  rcu_obj_base(const rcu_obj_base&&) = default;
+  rcu_obj_base(rcu_obj_base&&) = default;
   rcu_obj_base& operator=(const rcu_obj_base&) = default;
-  rcu_obj_base& operator=(const rcu_obj_base&&) = default;
+  rcu_obj_base& operator=(rcu_obj_base&&) = default;
   ~rcu_obj_base() = default;
 private:
   D @\exposid{deleter}@;            // exposition only
@@ -108,25 +108,23 @@ private:
 \end{codeblock}
 
 \pnum
-\tcode{D} shall be a
-function object type ([function.objects]) for which,
-given a value \tcode{d} of type \tcode{D} and a value \tcode{ptr}
-of type \tcode{T*}, the expression \tcode{d(ptr)} is valid and
-has the effect of disposing of the pointer as appropriate for
-that deleter.
-
-\pnum
 The behavior of a program that adds specializations for
 \tcode{rcu_obj_base} is undefined.
-
-\pnum
-\tcode{D} shall meet the requirements for
-\oldconcept{DefaultConstructible} and \oldconcept{MoveAssignable}.
 
 \pnum
 \tcode{T} may be an incomplete type.
 It shall be complete before any member of the resulting specialization of
 \tcode{rcu_obj_base} is referenced.
+
+\pnum
+\tcode{D} shall be a
+function object type ([function.objects]) for which,
+given a value \tcode{d} of type \tcode{D} and a value \tcode{ptr}
+of type \tcode{T*}, the expression \tcode{d(ptr)} is valid.
+
+\pnum
+\tcode{D} shall meet the requirements for
+\oldconcept{DefaultConstructible} and \oldconcept{MoveAssignable}.
 
 \pnum
 If \tcode{D} is trivially copyable, all specializations of
@@ -148,18 +146,19 @@ void retire(D d = D(), rcu_domain& dom = rcu_default_domain()) noexcept;
 an object \tcode{x} of type \tcode{T}. The member function
 \tcode{rcu_obj_base<T,D>::retire} was not invoked on \tcode{x}
 before. The assignment to \exposid{deleter} does not throw an
-exception. The expression \tcode{\exposid{deleter}(addressof(x))} has
-well-defined behavior and does not throw an exception.
+exception.
 
 \pnum
 \effects
-Evaluates \tcode{\exposid{deleter} = std::move(d)} and schedules
-the evaluation of the expression \tcode{de\-let\-er(ad\-dress\-of(x))} in the domain \tcode{dom}.
+Evaluates \tcode{\exposid{deleter} = std::move(d)} and schedules the
+evaluation of the expression \tcode{de\-let\-er(ad\-dress\-of(x))} in
+the domain \tcode{dom}; the behavior is undefined if that evaluation
+throws an exception.
 May invoke scheduled evaluations in \tcode{dom}.
 
 \begin{note}
 If such evaluations acquire resources held across any invocation of
-retire on \tcode{dom}, deadlock can occur.
+\tcode{retire} on \tcode{dom}, deadlock can occur.
 \end{note}
 
 \end{itemdescr}
