@@ -57,6 +57,11 @@ Such features might include:
 	In the meantime, async code can avoid \tcode{rcu_synchronize()}
 	in favor of \tcode{rcu_retire()}, with the scheduled deleter
 	interacting as needed with async.
+	Although there is no similar asynchronous variant of
+	\tcode{rcu_barrier()}, one could be created if it is shown
+	to be useful.
+	One reason for doubting its utility is that \tcode{rcu_barrier()}
+	tends to be used for cleanup operations.
 \item	A free function similar to \tcode{rcu_retire()} that uses
 	an \tcode{rcu_obj_base} if available, but which invokes
 	\tcode{rcu_retire()} if not.
@@ -78,7 +83,7 @@ Such features might include:
 
 	In their turn, library implementers have a number of
 	\tcode{rcu_retire()} memory-provisioning strategies at their
-	disposal give the current RCU API proposed for C++26:
+	disposal given the current RCU API proposed for C++26:
 
 	\begin{enumerate}
 	\item	Never allocate.
@@ -118,7 +123,11 @@ Such features might include:
 	acquiring a given resource when invoking these functions that
 	is also acquired in a deleter passes to either of these functions.
 	However, there is very little implementation experience with
-	such a facility, and none that we are aware of in C++.
+	such a facility, with the only C++ example being the Folly
+	library, which permits an executor to be associated with a
+	newly created \tcode{rcu_domain}, which the Folly library provides
+	as an extention to the functionality proposed for initial
+	standardization.
 	This facility is thus not included in this proposal for C++26.
 \item	Memory-allocator interfaces providing RCU-mediated typesafe
 	memory could be provided similar to the Linux kernel's
@@ -154,9 +163,11 @@ Such features might include:
 	or stop paying attention to the calling \tcode{std::thread},
 	respectively.
 
-	However, there is no implementation experience with any C++
-	RCU implementation that we are aware of.
-	This facility is thus not included in this proposal for C++26.
+	However, the only C++ implementation experience that we are
+	aware of is in the Folly library.
+	This facility is thus not included in this proposal for C++26,
+	however, later proposals might draw on additional Folly-library
+	experience over time.
 \item	Numerous efficiency-oriented APIs.
 	For but one example, the Linux kernel has an alternative
 	\tcode{rcu_access_pointer()} that can be used in place
