@@ -253,8 +253,8 @@ It cannot replace either RCU or Hazard Pointers.
 \label{tab:High-Level Comparison of Deferred-Reclamation Techniques}
 \end{table*}
 
-The Hazard Pointers library is described in P2530R1 (``Why Hazard Pointers
-Should Be in C++26'').
+The Hazard Pointers library is described in P2530R2 (``Hazard Pointers
+in C++26'').
 As a very rough rule of thumb, Hazard Pointers can be considered to be
 a scalable replacement for reference counters and RCU can be considered
 to be a scalable replacement for reader-writer locking.
@@ -483,11 +483,53 @@ When using this style, RCU-protected data items need not inherit from
 More detailed history may be found here:
 \url{https://github.com/paulmckrcu/wg21-rcu-C-26.git}.
 
-\subsection{Changes From P2545R2 to D2545R3}
-\label{sec:Changes From P2545R2 to D2545R3}
+\subsection{Changes From P2545R3 to D2545R4}
+\label{sec:Changes From P2545R3 to D2545R4}
+
+These changes were requested at the March 1, 2023 Library Working
+Group teleconference:
+
+\begin{itemize}
+\item	Title changed from ``Why RCU Should be in C++26'' to
+	``Read-Copy Update (RCU)''.
+\item	Guessed at the updated title for the hazard-pointers paper.
+\item	Added a detailed change history for the February 8, 2023 Library
+	Working Group review at the Issaquah meeting.
+\item	\ref{saferecl.rcu.general}p2: Added ``it has'' to produce
+	``... and that base is public and non-virtual, and it has no
+	base classes of type ...''
+\item	\ref{saferecl.rcu.base}p8: Changed ``deleter'' to italized
+	fixed font to indicate an expository identifier.
+	Also changed ``if that evaluation throws an exception'' to
+	``if that evaluation exits via an exception''.
+\item	\ref{saferecl.rcu.domain}: Add \tcode{try_lock()} in order
+	to meet the requirements of \oldconcept{Lockable} instead
+	of \oldconcept{BasicLockable}.
+	This change allows the user to add RCU readers to a list
+	of locks that are to be acquired in a deadlock-free manner.
+	This is strictly a convenience to the user (RCU readers cannot
+	deadlock).
+\item	\ref{saferecl.rcu.domain.lock}p2: Change ``the function
+	\tcode{lock}'' to just ``\tcode{lock}''.
+\item	\ref{saferecl.rcu.domain.unlock}p1 and
+	\ref{saferecl.rcu.domain.unlock}p3: Change ``the function
+	\tcode{unlock}'' to just ``\tcode{unlock}''.
+\item	\ref{saferecl.rcu.default.domain}p1: Change ``the default object''
+	to ``a static-duration object''.
+\item	Add a note following \ref{saferecl.rcu.barrier} stating that
+	neither of \tcode{rcu_synchronize} and \tcode{rcu_barrier}
+	imply the other.
+\item	\ref{saferecl.rcu.retire}: Refactor the mandates, preconditions
+	(AKA expects), and effects clauses.
+\item	\ref{saferecl.rcu.retire}p4: Rely on common Library wording
+	to avoid special wording for \tcode{bad_alloc} subclasses.
+\end{itemize}
+
+\subsection{Changes From P2545R2 to P2545R3}
+\label{sec:Changes From P2545R2 to P2545R3}
 
 Most of these changes were motivated by an LWG review of parallel sections
-of P2530R2 (``Why Hazard Pointers should be in C++26'') that was carried
+of P2530R2 (``Hazard Pointers in C++26'') that was carried
 out at the 2023 Issaquah meeting.
 
 \begin{itemize}
@@ -512,7 +554,26 @@ out at the 2023 Issaquah meeting.
 \item	Convert from \tcode{L'} and \tcode{U'} to \tcode{L2} and
 	\tcode{U2}, respectively.
 \item	Note that \tcode{rcu_obj_base} must be non-virtual.
-\item	Updates based on February 8 LWG review.
+\item	Updates based on February 8 LWG review:
+	\begin{itemize}
+	\item	\ref{saferecl.rcu.general}p3.1: Added a comma.
+	\item	\ref{saferecl.rcu.general}p6: Deleted ``such''
+		from ``any other such scheduled evaluation''.
+	\item	\ref{saferecl.rcu.base}: Remove ``\tcode{const}''
+		in order to produce a valid move constructor
+		and a valid move-assignment operator.
+	\item	Moved \ref{saferecl.rcu.base}p1 and \ref{saferecl.rcu.base}p3
+		to follow \ref{saferecl.rcu.base}p4, so that these
+		became \ref{saferecl.rcu.base}p3, \ref{saferecl.rcu.base}p4,
+		and \ref{saferecl.rcu.base}p2, respectively.
+	\item	\ref{saferecl.rcu.base}p7: Removed ``The expression
+		\tcode{\exposid{deleter}(ad\-dress\-of(x))} has
+		well-defined behavior and does not throw an exception.''
+	\item	\ref{saferecl.rcu.base}p8: Added ``the behavior is
+		undefined if that evaluation throws an exception''.
+	\item	Note 1 following \ref{saferecl.rcu.base}p8: Put
+		``retire'' into code font.
+	\end{itemize}
 \end{itemize}
 
 These changes nevertheless need LWG review, given that there might be

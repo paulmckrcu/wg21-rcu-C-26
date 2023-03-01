@@ -14,7 +14,7 @@ specified actions such as deletion at some later time.
 A class type \tcode{T} is \defn{rcu-protectable} if it has exactly one
 base class of type \tcode{rcu_obj_base<T,D>} for some \tcode{D}, and
 that base is public and non-virtual,
-and no base classes of type \tcode{rcu_obj_base<X,Y>} for any other
+and it has no base classes of type \tcode{rcu_obj_base<X,Y>} for any other
 combination \tcode{X}, \tcode{Y}. An object is rcu-protectable if it is
 of rcu-protectable type.
 
@@ -82,13 +82,8 @@ namespace std {
 
 \rSec2[saferecl.rcu.base]{Class \tcode{rcu_obj_base}}
 
-% @@@ Added missing "of" in following sentence.
-
 Objects of type \tcode{T} to be protected by RCU inherit from a
 specialization of \tcode{rcu_obj_base<T,D>}.
-
-% @@@ Removed obsolete in-code reference to the now-nonexistent
-% @@@ separate section for rcu_obj_base::retire.
 
 \begin{codeblock}
 template<class T, class D = default_delete<T>>
@@ -151,9 +146,9 @@ exception.
 \pnum
 \effects
 Evaluates \tcode{\exposid{deleter} = std::move(d)} and schedules the
-evaluation of the expression \tcode{de\-let\-er(ad\-dress\-of(x))} in
+evaluation of the expression \tcode{\exposid{deleter}(ad\-dress\-of(x))} in
 the domain \tcode{dom}; the behavior is undefined if that evaluation
-throws an exception.
+exits via an exception.
 May invoke scheduled evaluations in \tcode{dom}.
 
 \begin{note}
@@ -165,9 +160,7 @@ If such evaluations acquire resources held across any invocation of
 
 \rSec2[saferecl.rcu.domain]{Class \tcode{rcu_domain}}
 
-% @@@ Removed the obsolete reference comments.
-
-This class meets the requirements of \oldconcept{BasicLockable}
+This class meets the requirements of \oldconcept{Lockable}
 ([thread.req.lockable.req]) and provides regions of RCU protection.
 
 \begin{example}
@@ -183,11 +176,12 @@ public:
   rcu_domain& operator=(const rcu_domain&) = delete;
 
   void lock() noexcept;
+  bool try_lock() noexcept;
   void unlock() noexcept;
-private:
-  rcu_domain(unspecified);
 };
 \end{codeblock}
+% Tim Song LWG Mar 1 2023: we don't need the private/unspecified
+% ctor now that EWG changed the aggregate rules again.  C++20.
 
 The functions \tcode{lock} and \tcode{unlock} establish (possibly nested)
 regions of RCU protection.
@@ -206,10 +200,32 @@ Opens a region of RCU protection.
 
 \pnum
 \remarks
-Calls to the function lock do not introduce a data race
+Calls to \tcode{lock} do not introduce a data race
 ([intro.races]) involving \tcode{*this}.
 
 \end{itemdescr}
+
+\rSec3[saferecl.rcu.domain.trylock]{\tcode{rcu_domain::try_lock}}
+
+\begin{itemdecl}
+bool try_lock() noexcept;
+\end{itemdecl}
+
+\begin{itemdescr}
+
+\pnum
+\expects
+Equivalent to \tcode{lock()}.
+
+\pnum
+\returns
+\tcode{true}.
+
+\end{itemdescr}
+
+% @@@ Tomasz:
+% Cpp17Lockable.
+% bool try_lock() noexcept; Effects: Equivalent to \tcode{lock()}. Returns: \tcode{true}.
 
 \rSec3[saferecl.rcu.domain.unlock]{\tcode{rcu_domain::unlock}}
 
@@ -221,7 +237,7 @@ void unlock() noexcept;
 
 \pnum
 \expects
-A call to the function \tcode{lock} that opened
+A call to \tcode{lock} that opened
 an unclosed region of RCU protection is sequenced before the
 call to \tcode{unlock}.
 
@@ -236,7 +252,7 @@ May invoke scheduled evaluations in \tcode{*this}.
 If such evaluations acquire resources held across any invocation
 of \tcode{unlock} on \tcode{*this}, deadlock can occur.
 \end{note}
-Calls to the function \tcode{unlock} do not introduce a data race
+Calls to \tcode{unlock} do not introduce a data race
 involving \tcode{*this}.
 \begin{note}
 Evaluation of scheduled evaluations can still cause a data race.
@@ -254,7 +270,7 @@ rcu_domain& rcu_default_domain() noexcept;
 
 \pnum
 \returns
-A reference to the default object of type \tcode{rcu_domain}.
+A reference to a static-duration object of type \tcode{rcu_domain}.
 A reference to the same object is returned every time this
 function is called.
 
@@ -302,6 +318,11 @@ in \tcode{dom}, blocks until $E$ has been evaluated.
 The evaluation of any such $E$ strongly
 happens before the return from \tcode{rcu_barrier}.
 
+\begin{note}
+A call to \tcode{rcu_barrier} does not imply a call to \tcode{rcu_synchronize}
+and vice versa.
+\end{note}
+
 \end{itemdescr}
 
 \rSec2[saferecl.rcu.retire]{Template \tcode{rcu_retire}}
@@ -315,14 +336,13 @@ void rcu_retire(T* p, D d = D(), rcu_domain& dom = rcu_default_domain());
 
 \pnum
 \mandates
-\tcode{is_move_constructible_v<D>} is \tcode{true}.
+\tcode{is_move_constructible_v<D>} is \tcode{true} and
+the expression \tcode{d(p)} is well-formed.
 
 \pnum
 \expects
 \tcode{D} meets the \oldconcept{MoveConstructible} and
 \oldconcept{Destructible} requirements.
-The expression \tcode{d1(p)}, where \tcode{d1} is defined below, is
-well-formed and its evaluation does not exit via an exception.
 
 \pnum
 \effects
@@ -332,7 +352,8 @@ invoking \tcode{operator} \tcode{new}.
 Initializes an object \tcode{d1} of type \tcode{D} from
 \tcode{std::move(d)}.
 Schedules the evaluation of \tcode{d1(p)} in the domain
-\tcode{dom}.
+\tcode{dom}; the behavior is undefined if that evaluation
+exits via an exception.
 May invoke scheduled evaluations in \tcode{dom}.
 \begin{note}
 If \tcode{rcu_retire} exits via an exception, no evaluation
@@ -341,9 +362,8 @@ is scheduled.
 
 \pnum
 \throws
-Any exception that would be caught by a handler of type
-\tcode{bad_alloc}.
-Any exception thrown by the initialization of \tcode{d1}.
+\tcode{bad_alloc} or
+any exception thrown by the initialization of \tcode{d1}.
 
 \pnum
 \begin{note}
