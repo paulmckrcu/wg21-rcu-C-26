@@ -509,20 +509,22 @@ Group teleconference:
 	of locks that are to be acquired in a deadlock-free manner.
 	This is strictly a convenience to the user (RCU readers cannot
 	deadlock).
-\item	\ref{saferecl.rcu.domain.lock}p2: Change ``the function
+\item	\ref{saferecl.rcu.domain.members}p2 and
+	\ref{saferecl.rcu.domain.members}p5:
+	Change ``the function
 	\tcode{lock}'' to just ``\tcode{lock}''.
-\item	\ref{saferecl.rcu.domain.unlock}p1 and
-	\ref{saferecl.rcu.domain.unlock}p3: Change ``the function
+\item	\ref{saferecl.rcu.domain.members}p7: Change ``the function
 	\tcode{unlock}'' to just ``\tcode{unlock}''.
-\item	\ref{saferecl.rcu.default.domain}p1: Change ``the default object''
+\item	\ref{saferecl.rcu.domain.nonmembers}p1: Change ``the default object''
 	to ``a static-duration object''.
-\item	Add a note following \ref{saferecl.rcu.barrier} stating that
+\item	Add a note following \ref{saferecl.rcu.updates}p4 stating that
 	neither of \tcode{rcu_synchronize} and \tcode{rcu_barrier}
 	imply the other.
-\item	\ref{saferecl.rcu.retire}: Refactor the mandates, preconditions
-	(AKA expects), and effects clauses.
-\item	\ref{saferecl.rcu.retire}p4: Rely on common Library wording
-	to avoid special wording for \tcode{bad_alloc} subclasses.
+\item	\ref{saferecl.rcu.updates}p5-7: Refactor the mandates, preconditions
+	(AKA expects), and effects clauses for \tcode{rcu_retire}.
+\item	\ref{saferecl.rcu.updates}p8: Rely on common Library wording
+	to avoid special \tcode{rcu_retire} wording for \tcode{bad_alloc}
+	subclasses.
 \end{itemize}
 
 \subsection{Changes From P2545R2 to P2545R3}
