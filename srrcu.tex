@@ -65,8 +65,6 @@ namespace std {
   // \ref{saferecl.rcu.domain}, class \tcode{rcu_domain}
   class rcu_domain;
   rcu_domain& rcu_default_domain() noexcept;
-
-  // \ref{saferecl.rcu.updates}, updater free functions
   void rcu_synchronize(rcu_domain& dom = rcu_default_domain()) noexcept;
   void rcu_barrier(rcu_domain& dom = rcu_default_domain()) noexcept;
   template<class T, class D = default_delete<T>>
@@ -153,6 +151,8 @@ If such evaluations acquire resources held across any invocation of
 \end{itemdescr}
 
 \rSec2[saferecl.rcu.domain]{Class \tcode{rcu_domain}}
+
+\rSec3[saferecl.rcu.domain.general]{General}
 
 This class meets the requirements of \oldconcept{Lockable}
 ([thread.req.lockable.req]) and provides regions of RCU protection.
@@ -251,7 +251,7 @@ Evaluation of scheduled evaluations can still cause a data race.
 
 \end{itemdescr}
 
-\rSec3[saferecl.rcu.domain.nonmembers]{Non-member functions}
+\rSec3[saferecl.rcu.domain.func]{Non-member functions}
 
 \begin{itemdecl}
 rcu_domain& rcu_default_domain() noexcept;
@@ -266,8 +266,6 @@ A reference to the same object is returned every time this
 function is called.
 
 \end{itemdescr}
-
-\rSec2[saferecl.rcu.updates]{Updater free functions}
 
 \begin{itemdecl}
 void rcu_synchronize(rcu_domain& dom = rcu_default_domain()) noexcept;

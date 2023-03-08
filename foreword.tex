@@ -253,8 +253,8 @@ It cannot replace either RCU or Hazard Pointers.
 \label{tab:High-Level Comparison of Deferred-Reclamation Techniques}
 \end{table*}
 
-The Hazard Pointers library is described in P2530R2 (``Hazard Pointers
-in C++26'').
+The Hazard Pointers library is described in P2530R3 (``Hazard Pointers
+for C++26'').
 As a very rough rule of thumb, Hazard Pointers can be considered to be
 a scalable replacement for reference counters and RCU can be considered
 to be a scalable replacement for reader-writer locking.
@@ -483,6 +483,28 @@ When using this style, RCU-protected data items need not inherit from
 More detailed history may be found here:
 \url{https://github.com/paulmckrcu/wg21-rcu-C-26.git}.
 
+\subsection{Changes From D2545R4 to P2545R4}
+\label{sec:Changes From D2545R4 to P2545R4}
+
+These changes were requested at the March 8, 2023 Library Working
+Group teleconference:
+
+\begin{itemize}
+\item	Correct the name of P2530R3 to ``Hazard Pointers for C++26''
+	(but on own volition).
+\item	Add a \ref{saferecl.rcu.domain.general} section to avoid a
+	hanging paragraph.
+\item	Change \ref{saferecl.rcu.domain.func} immutable name from
+	[saferecl.rcu.domain.nonmembers] to [saferecl.rcu.domain.func].
+\item	Eliminate the ``Updater free function'' section in favor of
+	pulling \tcode{rcu_synchronize}, \tcode{rcu_barrier}, and
+	\tcode{rcu_retire} into \ref{saferecl.rcu.domain.func}.
+\item	Adjust section references, including refactoring
+	the history list for the March 1, 2023 Library Working
+	Group teleconference to be less dependent on low-level \LaTeX\
+	labels.
+\end{itemize}
+
 \subsection{Changes From P2545R3 to D2545R4}
 \label{sec:Changes From P2545R3 to D2545R4}
 
@@ -502,36 +524,37 @@ Group teleconference:
 	fixed font to indicate an expository identifier.
 	Also changed ``if that evaluation throws an exception'' to
 	``if that evaluation exits via an exception''.
-\item	\ref{saferecl.rcu.domain}: Add \tcode{try_lock()} in order
-	to meet the requirements of \oldconcept{Lockable} instead
-	of \oldconcept{BasicLockable}.
-	This change allows the user to add RCU readers to a list
-	of locks that are to be acquired in a deadlock-free manner.
-	This is strictly a convenience to the user (RCU readers cannot
-	deadlock).
-\item	\ref{saferecl.rcu.domain.members}p2 and
-	\ref{saferecl.rcu.domain.members}p5:
-	Change ``the function
-	\tcode{lock}'' to just ``\tcode{lock}''.
-\item	\ref{saferecl.rcu.domain.members}p7: Change ``the function
-	\tcode{unlock}'' to just ``\tcode{unlock}''.
-\item	\ref{saferecl.rcu.domain.nonmembers}p1: Change ``the default object''
-	to ``a static-duration object''.
-\item	Add a note following \ref{saferecl.rcu.updates}p4 stating that
-	neither of \tcode{rcu_synchronize} and \tcode{rcu_barrier}
-	imply the other.
-\item	\ref{saferecl.rcu.updates}p5-7: Refactor the mandates, preconditions
-	(AKA expects), and effects clauses for \tcode{rcu_retire}.
-\item	\ref{saferecl.rcu.updates}p8: Rely on common Library wording
-	to avoid special \tcode{rcu_retire} wording for \tcode{bad_alloc}
-	subclasses.
+\item	\ref{saferecl.rcu.domain}:
+	\begin{itemize}
+	\item	Add \tcode{try_lock()} in order
+		to meet the requirements of \oldconcept{Lockable} instead
+		of \oldconcept{BasicLockable}.
+		This change allows the user to add RCU readers to a list
+		of locks that are to be acquired in a deadlock-free manner.
+		This is strictly a convenience to the user (RCU readers cannot
+		deadlock).
+	\item	Change ``the function
+		\tcode{lock}'' to just ``\tcode{lock}''.
+	\item	Change ``the function
+		\tcode{unlock}'' to just ``\tcode{unlock}''.
+	\item	Change ``the default object''
+		to ``a static-duration object''.
+	\item	Add a note stating that
+		neither of \tcode{rcu_synchronize} and \tcode{rcu_barrier}
+		imply the other.
+	\item	Refactor the mandates, preconditions
+		(AKA expects), and effects clauses for \tcode{rcu_retire}.
+	\item	Rely on common Library wording
+		to avoid special \tcode{rcu_retire} wording for
+		\tcode{bad_alloc} subclasses.
+	\end{itemize}
 \end{itemize}
 
 \subsection{Changes From P2545R2 to P2545R3}
 \label{sec:Changes From P2545R2 to P2545R3}
 
 Most of these changes were motivated by an LWG review of parallel sections
-of P2530R2 (``Hazard Pointers in C++26'') that was carried
+of P2530R3 (``Hazard Pointers for C++26'') that was carried
 out at the 2023 Issaquah meeting.
 
 \begin{itemize}
